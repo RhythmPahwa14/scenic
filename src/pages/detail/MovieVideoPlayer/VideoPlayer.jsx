@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./VideoPlayer.scss";
 import Card from "../../../components/card/Card";
-import { embededMovieUrls, servers } from "../../../constants/constants";
+import { servers } from "../../../constants/constants";
 import apiConfig from "../../../api/apiConfig";
 import Button from "../../../components/button/Button";
 
@@ -13,19 +13,19 @@ const VideoPlayer = ({ id, title, movie }) => {
     setSelectedServer(index);
     switch (index) {
       case 0:
-        setServerUrl(`${embededMovieUrls.server1}${id}`);
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER1}${id}`);
         break;
       case 1:
-        setServerUrl(`${embededMovieUrls.server2}${id}`);
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER2}${id}`);
         break;
       case 2:
-        setServerUrl(`${embededMovieUrls.server3}${id}`);
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER3}${id}`);
         break;
       case 3:
-        setServerUrl(`${embededMovieUrls.server4}${id}`);
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER4}${id}`);
         break;
       case 4:
-        setServerUrl(`${embededMovieUrls.server5}${id}`);
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER5}${id}`);
         break;
       default:
         break;
@@ -33,7 +33,7 @@ const VideoPlayer = ({ id, title, movie }) => {
   };
 
   const handlePlayButtonClick = () => {
-    setServerUrl(`${embededMovieUrls.server1}${id}`);
+    setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER1}${id}`);
     setSelectedServer(0);
   };
 

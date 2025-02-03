@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./SeriesVideoPlayer.scss";
 import Card from "../../../components/card/Card";
-import { embededSeriesUrls, servers } from "../../../constants/constants";
+import { servers } from "../../../constants/constants";
 import apiConfig from "../../../api/apiConfig";
 import Button from "../../../components/button/Button";
 import tmdbApi from "../../../api/tmdbApi";
@@ -18,15 +18,15 @@ const SeriesVideoPlayer = ({ id, title, series }) => {
     setSelectedServer(index);
     let url = "";
     if (index === 0) {
-      url = `${embededSeriesUrls.server1}${id}/${selectedSeason}/${selectedEpisode}`;
+      url = `${process.env.REACT_APP_TV_SERVER1}${id}/${selectedSeason}/${selectedEpisode}`;
     } else if (index === 1) {
-      url = `${embededSeriesUrls.server2}${id}/${selectedSeason}/${selectedEpisode}`;
+      url = `${process.env.REACT_APP_TV_SERVER2}${id}/${selectedSeason}/${selectedEpisode}`;
     } else if (index === 2) {
-      url = `${embededSeriesUrls.server3}${id}/${selectedSeason}/${selectedEpisode}`;
+      url = `${process.env.REACT_APP_TV_SERVER3}${id}/${selectedSeason}/${selectedEpisode}`;
     } else if (index === 3) {
-      url = `${embededSeriesUrls.server4}?tmdb=${id}&season=${selectedSeason}&episode=${selectedEpisode}`;
+      url = `${process.env.REACT_APP_TV_SERVER4}?tmdb=${id}&season=${selectedSeason}&episode=${selectedEpisode}`;
     } else {
-      url = `${embededSeriesUrls.server5}${id}&tmdb=1&s=${selectedSeason}&e=${selectedEpisode}`;
+      url = `${process.env.REACT_APP_TV_SERVER5}${id}&tmdb=1&s=${selectedSeason}&e=${selectedEpisode}`;
     }
     setServerUrl(url);
   };
@@ -42,7 +42,7 @@ const SeriesVideoPlayer = ({ id, title, series }) => {
     setSelectedSeason(1);
     setSelectedEpisode(1);
     setServerUrl(
-      `${embededSeriesUrls.server1}/${id}/1/1`
+      `${process.env.REACT_APP_TV_SERVER1}/${id}/1/1`
     );
     setSelectedServer(0);
   };
