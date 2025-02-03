@@ -30,6 +30,7 @@
 
 .series-server-card-container {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
 }
@@ -158,5 +159,36 @@
       .series-episode-card.selected {
         background-color: #00925d;
       }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .series-server-container {
+      font-size: 0.9rem;
+      padding: 0.8rem;
+    }
+  
+    .series-server-card-container {
+      gap: 0.3rem;
+    }
+  
+    .series-server-card {
+      font-size: 0.8rem;
+    }
+  
+    .poster-container .btn {
+      font-size: 1.2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .series-server-container {
+      font-size: 0.8rem;
+      padding: 0.6rem;
+    }
+  
+    .series-server-card-container {
+      flex-direction: row;
+      align-items: center;
     }
   }
