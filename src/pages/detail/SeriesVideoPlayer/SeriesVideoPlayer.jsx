@@ -42,7 +42,7 @@ const SeriesVideoPlayer = ({ id, title, series }) => {
     setSelectedSeason(1);
     setSelectedEpisode(1);
     setServerUrl(
-      `${embededSeriesUrls.server1}?tmdb=${id}&season=1&episode=1`
+      `${embededSeriesUrls.server1}/${id}/1/1`
     );
     setSelectedServer(0);
   };
