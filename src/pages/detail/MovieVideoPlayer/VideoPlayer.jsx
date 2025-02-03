@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./VideoPlayer.scss";
 import Card from "../../../components/card/Card";
-import { embededMovieUrls } from "../../../constants/constants";
+import { embededMovieUrls, servers } from "../../../constants/constants";
 import apiConfig from "../../../api/apiConfig";
 import Button from "../../../components/button/Button";
 
@@ -16,10 +16,16 @@ const VideoPlayer = ({ id, title, movie }) => {
         setServerUrl(`${embededMovieUrls.server1}${id}`);
         break;
       case 1:
-        setServerUrl(`${embededMovieUrls.server3}${id}`);
+        setServerUrl(`${embededMovieUrls.server2}${id}`);
         break;
       case 2:
+        setServerUrl(`${embededMovieUrls.server3}${id}`);
+        break;
+      case 3:
         setServerUrl(`${embededMovieUrls.server4}${id}`);
+        break;
+      case 4:
+        setServerUrl(`${embededMovieUrls.server5}${id}`);
         break;
       default:
         break;
@@ -56,7 +62,7 @@ const VideoPlayer = ({ id, title, movie }) => {
             If the current server doesn't work, please try other servers below.
           </div>
           <div className="server-card-container">
-            {["Server 1", "Server 2", "Server 3"].map((server, index) => (
+            {servers.map((server, index) => (
               <Card
                 key={index}
                 className={`server-card ${
