@@ -22,7 +22,6 @@ const HeroSlide = () => {
           params,
         });
         setMovieItems(response.results.slice(1, 4));
-        console.log(response);
       } catch {
         console.log("error");
       }
