@@ -1,8 +1,65 @@
 .search-page {
-    margin-top: 8rem;
-    padding: 2rem;
-  
-    h2 {
-      margin-bottom: 2rem;
+  margin-top: 6rem;
+  padding: 2rem 0;
+
+  .search-container {
+    margin-bottom: 2rem;
+  }
+
+  .movie-search {
+    max-width: 800px;
+    margin: 0 auto;
+
+    .search-input {
+      width: 100%;
+      
+      input {
+        height: 3.5rem;
+        font-size: 1.1rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        background: var(--mantine-color-dark-6);
+        border: 2px solid var(--mantine-color-dark-4);
+        transition: all 0.3s ease;
+        
+        &:focus {
+          background: var(--mantine-color-dark-5);
+          border-color: var(--mantine-color-blue-7);
+        }
+      }
+
+      .search-icon {
+        font-size: 1.3rem;
+        color: var(--mantine-color-dark-1);
+        opacity: 0.7;
+        margin-left: 0.5rem;
+      }
+
+      .clear-button {
+        opacity: 0.6;
+        transition: opacity 0.2s ease;
+        
+        &:hover {
+          opacity: 1;
+          background: none;
+        }
+
+        i {
+          font-size: 1.2rem;
+        }
+      }
     }
   }
+
+  .search-title {
+    margin: 2rem 0;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--mantine-color-gray-3);
+  }
+
+  .error-container {
+    text-align: center;
+    padding: 2rem;
+  }
+}

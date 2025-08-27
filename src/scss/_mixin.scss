@@ -1,9 +1,56 @@
-@mixin flex($aligin-item, $justify-content) {
+@use "./variables" as *;
+
+@mixin flex($align-item, $justify-content) {
     display: flex;
-    align-items: $aligin-item;
+    align-items: $align-item;
     justify-content: $justify-content;
 }
 
 @mixin overlay {
     background-color: rgba($color: #000000, $alpha: 0.6);
+}
+
+// V2 Enhanced Mixins
+@mixin glass-morphism {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: $backdrop-blur;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@mixin hover-lift {
+    transition: all $transition-normal;
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: $box-shadow-lg;
+    }
+}
+
+@mixin gradient-text($color1, $color2) {
+    background: linear-gradient(135deg, $color1, $color2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@mixin card-hover {
+    transition: all $transition-normal;
+    &:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: $box-shadow-lg;
+        background: $card-hover;
+    }
+}
+
+@mixin button-glow($color) {
+    box-shadow: 0 0 20px rgba($color, 0.4);
+    &:hover {
+        box-shadow: 0 0 30px rgba($color, 0.6);
+    }
+}
+
+@mixin button-subtle {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    &:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
 }

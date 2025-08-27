@@ -23,13 +23,15 @@ html {
 body {
     font-family: $font-family;
     font-weight: 400;
-    line-height: 1.5;
-
-    background-color: $body-bg;
+    line-height: 1.6;
+    
+    background: $body-bg;
+    background-attachment: fixed;
     color: $txt-color;
+    overflow-x: hidden;
 
     @include mobile {
-        margin-bottom: 3rem;
+        padding-bottom: 6rem; // Space for bottom navigation
     }
 }
 
@@ -62,8 +64,17 @@ iframe {
 }
 
 .container {
-    max-width: 1660px;
+    max-width: 1400px;
     margin: auto;
+    padding: 0 $space-6;
+    
+    @include tablet {
+        padding: 0 $space-4;
+    }
+    
+    @include mobile {
+        padding: 0 $space-3;
+    }
 }
 
 .mb-3 {
@@ -75,9 +86,52 @@ iframe {
 }
 
 .section {
-    padding: 0 2rem;
+    padding: 0 $space-6;
+    
+    @include tablet {
+        padding: 0 $space-4;
+    }
+    
+    @include mobile {
+        padding: 0 $space-3;
+    }
 }
 
 .section__header {
     @include flex(center, space-between);
+    margin-bottom: $space-8;
+    
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        @include gradient-text($main-color, $accent-secondary);
+        
+        @include mobile {
+            font-size: 1.5rem;
+        }
+    }
+}
+
+// Enhanced scrollbar
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, $main-color, $accent-secondary);
+    border-radius: 4px;
+    
+    &:hover {
+        background: linear-gradient(135deg, $main-color-hover, $accent-color);
+    }
+}
+
+// Selection styling
+::selection {
+    background: rgba(0, 212, 255, 0.3);
+    color: $white;
 }

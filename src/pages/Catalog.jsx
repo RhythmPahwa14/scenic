@@ -9,16 +9,30 @@ import MovieGrid from '../components/movie-grid/MovieGrid';
 
 const Catalog = () => {
 
-    const { category } = useParams();
+    const { category, type } = useParams();
+
+    const getPageTitle = () => {
+        if (type) {
+            const typeNames = {
+                'top_rated': 'Top Rated',
+                'now_playing': 'Now Playing',
+                'popular': 'Popular',
+                'upcoming': 'Upcoming'
+            };
+            const categoryName = category === cate.movie ? 'Movies' : 'TV Series';
+            return `${typeNames[type] || 'Popular'} ${categoryName}`;
+        }
+        return category === cate.movie ? 'Movies' : 'TV Series';
+    };
 
     return (
         <>
             <PageHeader>
-                {category === cate.movie ? 'Movies' : 'TV Series'}
+                {getPageTitle()}
             </PageHeader>
             <div className="container">
                 <div className="section mb-3">
-                    <MovieGrid category={category}/>
+                    <MovieGrid category={category} type={type}/>
                 </div>
             </div>
         </>

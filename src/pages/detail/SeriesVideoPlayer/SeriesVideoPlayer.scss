@@ -21,11 +21,12 @@
 }
 
 .series-server-container {
-  background-color: black;
+  @include glass-morphism;
   text-align: center;
   margin-top: 1rem;
   padding: 1rem;
-  // border-radius: 16px;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
 }
 
 .series-server-card-container {
@@ -37,15 +38,26 @@
 
 .series-server-card {
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 2px solid #00925d;
+  transition: all $transition-normal;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: $backdrop-blur;
   margin-top: 0.6rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    border-color: $main-color;
+    background: rgba(0, 212, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .series-server-card.selected {
-  background-color: #00925d;
-  color: white;
-  border-color: #00925d;
+  background: linear-gradient(135deg, $main-color, $accent-secondary);
+  color: $white;
+  border-color: $main-color;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .movie-content__poster__img {
@@ -123,8 +135,10 @@
 }
 
 .season-container {
-    background-color: rgb(23, 23, 23);
+    @include glass-morphism;
     padding: 1rem;
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow;
 
     .Dropdown-root {
       width: 12rem;
@@ -141,23 +155,38 @@
       }
   
       .series-episode-card {
-        transition: background-color 0.3s ease;
-        box-shadow: 2px solid #00925d;
+        transition: all $transition-normal;
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: $backdrop-blur;
         width: 11rem;
         height: 4rem;
         display: flex;
         align-items: center;
         font-size: small;
-        background-color: black;
-        color: white;
+        color: $txt-color;
+        cursor: pointer;
+        border-radius: $border-radius;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        
+        &:hover {
+          border-color: $main-color;
+          background: rgba(0, 212, 255, 0.1);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
 
         @include mobile {
             width: 7.6rem;
             font-size: 6.9px;
         }
       }
+      
       .series-episode-card.selected {
-        background-color: #00925d;
+        background: linear-gradient(135deg, $main-color, $accent-secondary);
+        color: $white;
+        border-color: $main-color;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
       }
     }
   }

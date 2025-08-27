@@ -3,11 +3,20 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
 
 .logo {
-    font-size: 2.5rem;
-    font-weight: 600;
+    font-size: 2.8rem;
+    font-weight: 700;
     font-family: "Bebas Neue", sans-serif;
-
+    @include gradient-text($main-color, $accent-color);
+    letter-spacing: 2px;
+    
     @include flex(center, unset);
+    
+    transition: all $transition-normal;
+    
+    &:hover {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+    }
 
     img {
         margin-right: 10px;
@@ -27,35 +36,43 @@
     left: 0;
     width: 100%;
     z-index: 99;
-    transition: height 0.3s ease, background-color 0.3s ease;
+    transition: all 0.3s ease;
+    @include glass-morphism;
 
     &.shrink {
         height: $header-shrink-height;
-        background-color: $body-bg;
+        background: rgba(12, 12, 12, 0.95);
+        backdrop-filter: $backdrop-blur;
+        box-shadow: $box-shadow-md;
     }
 
     &__wrap {
         @include flex(center, space-between);
         height: 100%;
-        padding: 0 2rem;
+        padding: 0 $space-8;
 
         @include mobile {
             justify-content: center;
+            padding: 0 $space-4;
         }
     }
 
     &__nav {
         @include flex(center, unset);
-
-        & > * ~ * {
-            margin-left: 2rem;
-        }
+        gap: $space-8;
 
         li {
-            padding: 5px 0;
-            font-weight: 600;
+            padding: $space-3 0;
+            font-weight: 500;
             position: relative;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            transition: all $transition-normal;
+            
+            a {
+                position: relative;
+                z-index: 2;
+                padding: $space-3 $space-2;
+            }
 
             &::after {
                 content: "";
@@ -64,31 +81,80 @@
                 left: 50%;
                 transform: translateX(-50%);
                 width: 0;
-                transition: width 0.5s ease;
-                height: 2px;
-                background-color: $main-color;
+                height: 3px;
+                background: linear-gradient(135deg, $main-color, $accent-secondary);
+                border-radius: 2px;
+                transition: width $transition-normal;
             }
 
             &.active::after,
             &:hover::after {
-                width: 100%;
+                width: 80%;
+            }
+            
+            &.active,
+            &:hover {
+                color: $main-color;
             }
         }
 
         @include mobile {
+            display: none;
+        }
+    }
+
+    &__mobile-nav {
+        display: none;
+
+        @include mobile {
+            display: flex;
             position: fixed;
             bottom: 0;
             left: 0;
             height: 5rem;
             width: 100%;
-            background-color: $body-bg;
-            padding: 0 2rem;
-            box-shadow: $box-shadow;
+            @include glass-morphism;
+            padding: 0 $space-4;
+            box-shadow: $box-shadow-lg;
+            z-index: 100;
 
             @include flex(center, space-between);
+            
+            li {
+                padding: $space-2 $space-3;
+                font-size: 0.9rem;
+                font-weight: 500;
+                position: relative;
+                transition: all $transition-normal;
+                
+                a {
+                    padding: $space-2;
+                    position: relative;
+                    z-index: 2;
+                }
 
-            & > * ~ * {
-                margin-left: 0;
+                &::after {
+                    content: "";
+                    position: absolute;
+                    bottom: $space-1;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 0;
+                    height: 2px;
+                    background: linear-gradient(135deg, $main-color, $accent-secondary);
+                    border-radius: 2px;
+                    transition: width $transition-normal;
+                }
+
+                &.active::after,
+                &:hover::after {
+                    width: 80%;
+                }
+                
+                &.active,
+                &:hover {
+                    color: $main-color;
+                }
             }
         }
     }

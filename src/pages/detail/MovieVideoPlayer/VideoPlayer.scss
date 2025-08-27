@@ -21,11 +21,12 @@
   }
 
   .server-container {
-    background-color: black;
+    @include glass-morphism;
     text-align: center;
     margin-top: 1rem;
     padding: 1rem;
-    border-radius: 16px;
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow;
   }
 
   .server-card-container {
@@ -37,15 +38,26 @@
 
   .server-card {
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 2px solid #00925D;
+    transition: all $transition-normal;
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: $backdrop-blur;
     margin-top: 0.6rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      border-color: $main-color;
+      background: rgba(0, 212, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
   }
   
   .server-card.selected {
-    background-color: #00925D;
-    color: white;
-    border-color: #00925D;
+    background: linear-gradient(135deg, $main-color, $accent-secondary);
+    color: $white;
+    border-color: $main-color;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
 
   .movie-content__poster__img {

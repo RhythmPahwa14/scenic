@@ -1,86 +1,179 @@
 @use "../../scss/" as *;
 
-// .footer {
-//     position: relative;
-//     padding: 6rem 2rem;
-//     background-position: top;
-//     background-size: cover;
-//     background-repeat: no-repeat;
-
-//     &__content {
-//         max-width: 1000px;
-
-//         &__logo {
-//             @include flex(center, center);
-//             margin-bottom: 3rem;
-//         }
-
-//         &__menus {
-//             display: grid;
-//             grid-template-columns: repeat(3, 1fr);
-
-//             @include mobile {
-//                 grid-template-columns: repeat(2, 1fr);
-//             }
-//         }
-
-//         &__menu {
-//             @include flex(flex-start, flex-start);
-//             flex-direction: column;
-//             margin-top: 1rem;
-
-//             font-size: 1.5rem;
-//             font-weight: 600;
-
-//             & > * ~ * {
-//                 margin-top: 1rem;
-//             }
-//         }
-//     }
-// }
-
 .footer {
-    background-color: #1a1a1a;
-    color: #393636;
-    padding: 20px 0;
-    text-align: center;
-
-    &__social-icons {
-        margin-bottom: 5px;
-
-        a {
-            color: #393636;
-            font-size: 20px;
-            margin: 0 5px;
-            transition: color 0.3s ease;
-
-            &:hover {
-                color: white;
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(16, 16, 32, 0.95) 100%);
+    backdrop-filter: $backdrop-blur;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: $space-24;
+    
+    &__content {
+        padding: $space-16 0 $space-8 0;
+        @include flex(flex-start, space-between);
+        
+        @include tablet {
+            flex-direction: column;
+            gap: $space-6;
+            text-align: center;
+            align-items: center;
+        }
+        
+        @include mobile {
+            gap: $space-4;
+            text-align: center;
+            align-items: center;
+        }
+    }
+    
+    &__brand {
+        flex: 0 0 auto;
+        max-width: 300px;
+        
+        @include mobile {
+            text-align: center;
+        }
+        
+        .footer__logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: "Bebas Neue", sans-serif;
+            @include gradient-text($main-color, $accent-color);
+            margin-bottom: $space-2;
+            letter-spacing: 2px;
+        }
+        
+        .footer__tagline {
+            color: $txt-secondary;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+    }
+    
+    &__links {
+        @include flex(flex-start, flex-start);
+        gap: $space-8;
+        flex: 0 0 auto;
+        
+        @include tablet {
+            justify-content: center;
+            gap: $space-6;
+            flex-wrap: wrap;
+        }
+        
+        @include mobile {
+            flex-direction: column;
+            gap: $space-4;
+            align-items: center;
+            text-align: center;
+        }
+    }
+    
+    &__section {
+        @include mobile {
+            text-align: center;
+        }
+        
+        h4 {
+            color: $main-color;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: $space-4;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            
+            li {
+                margin-bottom: $space-2;
+                
+                a {
+                    color: $txt-secondary;
+                    text-decoration: none;
+                    transition: all $transition-normal;
+                    
+                    &:hover {
+                        color: $main-color;
+                        transform: translateX(4px);
+                        
+                        @include mobile {
+                            transform: translateY(-2px);
+                        }
+                    }
+                }
             }
         }
     }
 
-    &__credit {
-        font-size: 14px;
+    &__social-icons {
+        @include flex(center, center);
+        gap: $space-4;
+        margin-top: $space-4;
+
+        @include mobile {
+            justify-content: center;
+        }
 
         a {
-            color: #393636;
-            text-decoration: none;
-            transition: color 0.3s ease;
+            @include flex(center, center);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: $txt-secondary;
+            font-size: 1.2rem;
+            transition: all $transition-normal;
+            backdrop-filter: $backdrop-blur;
 
             &:hover {
-                color: white;
+                background: $main-color;
+                color: $white;
+                transform: translateY(-2px);
+                box-shadow: $glow-primary;
+            }
+        }
+    }
+    
+    &__bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: $space-6 0;
+        
+        .footer__credit {
+            text-align: center;
+            
+            p {
+                color: $txt-muted;
+                font-size: 0.9rem;
+                margin: 0;
+                
+                a {
+                    color: $main-color;
+                    text-decoration: none;
+                    font-weight: 500;
+                    transition: color $transition-normal;
+
+                    &:hover {
+                        color: $accent-color;
+                    }
+                }
             }
         }
     }
 
     @include mobile {
-        &__social-icons {
-            font-size: 16px;
+        &__content {
+            padding: $space-12 0 $space-6 0;
         }
-        &__credit {
-            font-size: 12px;
-            padding-bottom: 1rem;
+        
+        &__brand .footer__logo {
+            font-size: 2rem;
+        }
+        
+        &__social-icons a {
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
         }
     }
 }

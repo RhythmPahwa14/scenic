@@ -4,6 +4,7 @@ import Slider from "react-slick";
 import "./movie-list.scss";
 import tmdbApi, { category } from "../../api/tmdbApi";
 import MovieCard from "../movie-card/MovieCard";
+import Loading from "../loading/Loading";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -74,7 +75,7 @@ const MovieList = ({ category: cat, type, id }) => {
   };
 
   if(isLoading) {
-    return <div>Loading..</div>
+    return <Loading size="small" />
   }
 
   return (

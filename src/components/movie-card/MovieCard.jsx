@@ -18,13 +18,24 @@ const MovieCard = props => {
     const bg = apiConfig.w500Image(item.poster_path || item.backdrop_path);
 
     return (
-        <Link to={link}>
+        <Link to={link} className="movie-card-link">
             <div className="movie-card" style={{backgroundImage: `url(${bg})`}}>
                 <Button>
                     <i className="bx bx-play"></i>
                 </Button>
+                <div className="movie-card__info">
+                    <div className="movie-card__rating">
+                        <i className="bx bxs-star"></i>
+                        <span>{item.vote_average?.toFixed(1) || 'N/A'}</span>
+                    </div>
+                </div>
             </div>
-            {/* <h3>{item.title || item.name}</h3> */}
+            <div className="movie-card__title">
+                <h3>{item.title || item.name}</h3>
+                <p className="movie-card__year">
+                    {new Date(item.release_date || item.first_air_date).getFullYear() || 'TBA'}
+                </p>
+            </div>
         </Link>
     );
 }

@@ -1,16 +1,19 @@
 @use "../../scss/" as *;
 
 .hero-slide {
-    margin-bottom: 3rem;
+    margin-bottom: $space-16;
+    margin-top: $header-height;
 }
 
 .hero-slide__item {
-    padding: 9rem 0;
+    padding: $space-24 0;
     width: 100%;
     position: relative;
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
+    min-height: 80vh;
+    @include flex(center, center);
 
     &::before {
         content: "";
@@ -19,7 +22,12 @@
         left: 0;
         width: 100%;
         height: 100%;
-        @include overlay();
+        background: linear-gradient(
+            135deg,
+            rgba(0, 0, 0, 0.7) 0%,
+            rgba(0, 0, 0, 0.4) 50%,
+            rgba(0, 0, 0, 0.8) 100%
+        );
     }
 
     &::after {
@@ -28,8 +36,13 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 100px;
-        background-image: linear-gradient(to top, $body-bg, rgba($black, 0));
+        height: 200px;
+        background: linear-gradient(
+            to top,
+            rgba(12, 12, 12, 1) 0%,
+            rgba(12, 12, 12, 0.8) 50%,
+            transparent 100%
+        );
     }
 
     &__content {
@@ -38,63 +51,81 @@
 
         &__info {
             width: 55%;
-            padding: 0 3rem;
+            padding: 0 $space-8;
             position: relative;
+            z-index: 2;
 
             @include tablet {
                 width: 100%;
+                padding: 0 $space-6;
             }
 
             & > * ~ * {
-                margin-top: 3rem;
+                margin-top: $space-8;
             }
 
             .title {
-                font-size: 38px;
-                font-weight: 700;
+                font-size: 4rem;
+                font-weight: 800;
+                line-height: 1.1;
+                @include gradient-text($white, $main-color);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 
                 @include mobile {
-                    font-size: 2rem;
+                    font-size: 2.5rem;
                 }
                 @include tablet {
-                    font-size: 2rem;
+                    font-size: 3rem;
                 }
             }
 
             .overview {
-                margin-top: 0;
-                font-size: 14px;
+                font-size: 1.1rem;
+                line-height: 1.6;
+                color: $txt-secondary;
+                max-width: 500px;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+                
+                @include mobile {
+                    font-size: 1rem;
+                }
             }
 
             .btns {
                 display: flex;
-            }
-
-            .btns > * ~ * {
-                margin-left: 1rem;
+                gap: $space-4;
+                
+                @include mobile {
+                    flex-direction: column;
+                    gap: $space-3;
+                }
             }
 
             .btns,
             .title,
             .overview {
                 opacity: 0;
-                transform: translateY(-80px);
-                transition: transform 0.5s ease, opacity 0.5s ease;
+                transform: translateY(50px);
+                transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             }
         }
 
         &__poster {
             flex: 1;
-            @include flex(center, flex-start);
+            @include flex(center, flex-end);
             position: relative;
+            z-index: 2;
 
             img {
-                width: 400px;
-                border-radius: $border-radius;
-                box-shadow: $box-shadow;
-
-                transform: scale(0);
-                transition: transform 0.7s ease;
+                width: 350px;
+                border-radius: $border-radius-lg;
+                box-shadow: $box-shadow-xl;
+                transform: scale(0) rotateY(20deg);
+                transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                
+                @include mobile {
+                    width: 250px;
+                }
             }
 
             @include tablet {
@@ -105,7 +136,7 @@
 
     &.active > &__content > &__content__poster {
         img {
-            transform: scale(1);
+            transform: scale(1) rotateY(0deg);
         }
     }
 
@@ -118,15 +149,15 @@
         }
 
         .title {
-            transition-delay: 0.3s, 0.3s;
+            transition-delay: 0.2s;
         }
 
         .overview {
-            transition-delay: 0.6s, 0.6s;
+            transition-delay: 0.4s;
         }
 
         .btns {
-            transition-delay: 0.9s, 0.9s;
+            transition-delay: 0.6s;
         }
     }
 }

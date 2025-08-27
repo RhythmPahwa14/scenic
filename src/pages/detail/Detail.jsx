@@ -41,9 +41,21 @@ const Detail = () => {
   };
 
   const getDetail = async () => {
-    const response = await tmdbApi.detail(category, id, { params: {} });
-    setItem(response);
-    window.scrollTo(0, 0);
+    try {
+      // Check if ID is numeric, if not redirect to catalog
+      if (id && isNaN(Number(id))) {
+        window.location.href = `/${category}`;
+        return;
+      }
+      
+      const response = await tmdbApi.detail(category, id, { params: {} });
+      setItem(response);
+      window.scrollTo(0, 0);
+    } catch (error) {
+      console.error("Error fetching movie/TV details:", error);
+      // Redirect to catalog if detail fetch fails
+      window.location.href = `/${category}`;
+    }
   };
 
   useEffect(() => {

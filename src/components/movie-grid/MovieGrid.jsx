@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
+import { useDebounce } from "use-debounce";
 import "./movie-grid.scss";
 import MovieCard from "../movie-card/MovieCard";
-import Button, { OutlineButton } from "../button/Button";
+import { OutlineButton } from "../button/Button";
 import Input from "../input/Input";
 import tmdbApi, { category, movieType, tvType } from "../../api/tmdbApi";
 import Select from "react-select";
@@ -17,17 +18,28 @@ const MovieGrid = (props) => {
   const [selectedCountry, setSelectedCountry] = useState(null);
 
   const { keyword } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const genreFromUrl = searchParams.get('genre');
 
   useEffect(() => {
     const getGenres = async () => {
       try {
         const response = await tmdbApi.getGenreList(props.category);
-        setGenres(
-          response.genres.map((genre) => ({
-            value: genre.id,
-            label: genre.name,
-          }))
-        );
+        const genreOptions = response.genres.map((genre) => ({
+          value: genre.id,
+          label: genre.name,
+        }));
+        setGenres(genreOptions);
+
+        // Set selected genre from URL parameter after genres are loaded
+        if (genreFromUrl) {
+          const genreOption = genreOptions.find(genre => genre.value.toString() === genreFromUrl);
+          if (genreOption) {
+            setSelectedGenre(genreOption);
+          }
+        }
       } catch (error) {
         console.error("Error fetching genres:", error);
       }
@@ -49,7 +61,18 @@ const MovieGrid = (props) => {
 
     getGenres();
     getCountries();
-  }, [props.category]);
+  }, [props.category, genreFromUrl]);
+
+  // Handle genre selection and URL update
+  const handleGenreChange = (genre) => {
+    setSelectedGenre(genre);
+    const currentPath = location.pathname;
+    if (genre) {
+      navigate(`${currentPath}?genre=${genre.value}`);
+    } else {
+      navigate(currentPath);
+    }
+  };
 
   const getList = async () => {
     let response = null;
@@ -57,10 +80,12 @@ const MovieGrid = (props) => {
     if (keyword === undefined && !selectedGenre && !selectedCountry) {
       switch (props.category) {
         case category.movie:
-          response = await tmdbApi.getMoviesList(movieType.popular, { params });
+          const movieTypeToUse = props.type || movieType.popular;
+          response = await tmdbApi.getMoviesList(movieTypeToUse, { params });
           break;
         default:
-          response = await tmdbApi.getTvList(tvType.popular, { params });
+          const tvTypeToUse = props.type || tvType.popular;
+          response = await tmdbApi.getTvList(tvTypeToUse, { params });
       }
     } else if (keyword === undefined && (selectedGenre || selectedCountry)) {
       const param = {
@@ -89,7 +114,7 @@ const MovieGrid = (props) => {
   useEffect(() => {
     getList();
     // eslint-disable-next-line
-  }, [props.category, keyword, selectedGenre, selectedCountry]);
+  }, [props.category, props.type, keyword, selectedGenre, selectedCountry]);
 
   const loadMore = async () => {
     let response = null;
@@ -99,10 +124,12 @@ const MovieGrid = (props) => {
     if (keyword === undefined && !selectedGenre && !selectedCountry) {
       switch (props.category) {
         case category.movie:
-          response = await tmdbApi.getMoviesList(movieType.popular, { params });
+          const movieTypeToUse = props.type || movieType.popular;
+          response = await tmdbApi.getMoviesList(movieTypeToUse, { params });
           break;
         default:
-          response = await tmdbApi.getTvList(tvType.popular, { params });
+          const tvTypeToUse = props.type || tvType.popular;
+          response = await tmdbApi.getTvList(tvTypeToUse, { params });
       }
     } else if (keyword === undefined && (selectedGenre || selectedCountry)) {
       const param = {
@@ -128,39 +155,68 @@ const MovieGrid = (props) => {
     setPage(page + 1);
   };
 
-  // Custom styles for the Select component
+  // Custom styles for the Select component - matching season dropdown
   const customSelectStyles = {
-    control: (provided) => ({
+    control: (provided, state) => ({
       ...provided,
-      backgroundColor: "black",
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+      backdropFilter: "blur(20px)",
+      border: state.isFocused ? "2px solid #00d4ff" : "2px solid rgba(255, 255, 255, 0.2)",
+      borderRadius: "12px",
       color: "white",
-      borderColor: "white",
       minWidth: '12rem',
+      maxWidth: '12rem',
+      boxShadow: state.isFocused ? "0 6px 16px rgba(0, 0, 0, 0.15)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
+      "&:hover": {
+        borderColor: "#00d4ff"
+      }
     }),
     singleValue: (provided) => ({
       ...provided,
-      color: "white",
+      color: "#f8fafc",
     }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: "black",
+      backgroundColor: "rgba(26, 26, 46, 0.95)",
+      backdropFilter: "blur(20px)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "12px",
+      maxWidth: '12rem',
+      boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
+      zIndex: 9999
+    }),
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999,
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? "#333" : "black",
-      color: "white",
+      backgroundColor: state.isSelected
+        ? "linear-gradient(135deg, #00d4ff, #4ecdc4)"
+        : state.isFocused
+          ? "rgba(0, 212, 255, 0.1)"
+          : "transparent",
+      color: "#f8fafc",
       cursor: 'pointer',
       "&:hover": {
-        backgroundColor: "#555",
+        backgroundColor: "rgba(0, 212, 255, 0.1)",
       },
+      maxWidth: '12rem'
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: "gray",
+      color: "#64748b",
     }),
     input: (provided) => ({
       ...provided,
-      color: "white",
+      color: "#f8fafc",
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: "#64748b",
+      "&:hover": {
+        color: "#00d4ff"
+      }
     }),
   };
 
@@ -173,12 +229,13 @@ const MovieGrid = (props) => {
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>
           <Select
             options={genres}
-            onChange={(genre) => setSelectedGenre(genre)}
+            onChange={handleGenreChange}
             value={selectedGenre}
             placeholder="Select a genre"
             isSearchable={true}
             isClearable={true}
             styles={customSelectStyles}
+            menuPortalTarget={document.body}
           />
           <Select
             options={countries}
@@ -188,6 +245,7 @@ const MovieGrid = (props) => {
             isSearchable={true}
             isClearable={true}
             styles={customSelectStyles}
+            menuPortalTarget={document.body}
           />
         </div>
       </div>
@@ -211,18 +269,33 @@ const MovieSearch = (props) => {
   const navigate = useNavigate();
 
   const [keyword, setKeyword] = useState(props.keyword ? props.keyword : "");
+  const [debouncedKeyword] = useDebounce(keyword, 500);
 
-  const goToSearch = useCallback(() => {
-    if (keyword.trim().length > 0) {
-      navigate(`/${category[props.category]}/search/${keyword}`);
+  const goToSearch = useCallback((searchTerm) => {
+    if (searchTerm && searchTerm.trim().length > 0) {
+      navigate(`/${category[props.category]}/search/${searchTerm}`);
+    } else {
+      // If empty search, show all movies/series of this category
+      navigate(`/${category[props.category]}`);
     }
-  }, [keyword, props.category, navigate]);
+  }, [props.category, navigate]);
 
+  // Auto-search with debouncing
+  useEffect(() => {
+    if (debouncedKeyword.trim().length > 0) {
+      goToSearch(debouncedKeyword);
+    } else if (debouncedKeyword === "" && keyword === "") {
+      // If user backspaced to empty, show all movies/series of this category
+      goToSearch("");
+    }
+  }, [debouncedKeyword, keyword, goToSearch]);
+
+  // Keep Enter key functionality
   useEffect(() => {
     const enterEvent = (e) => {
       e.preventDefault();
       if (e.keyCode === 13) {
-        goToSearch();
+        goToSearch(keyword);
       }
     };
     document.addEventListener("keyup", enterEvent);
@@ -233,17 +306,14 @@ const MovieSearch = (props) => {
 
   return (
     <div className="movie-search">
+      <i className="bx bx-search search-icon"></i>
       <Input
         type="text"
-        placeholder={`Search ${
-          category[props.category] === "tv" ? "Series" : "Movies"
-        }`}
+        placeholder={`Search ${category[props.category] === "tv" ? "Series" : "Movies"
+          }`}
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
       />
-      <Button className="small" onClick={goToSearch}>
-        Search
-      </Button>
     </div>
   );
 };

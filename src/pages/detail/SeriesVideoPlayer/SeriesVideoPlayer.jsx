@@ -76,40 +76,62 @@ const SeriesVideoPlayer = ({ id, title, series }) => {
     : [];
 
     const customSelectStyles = {
-      control: (provided) => ({
+      control: (provided, state) => ({
         ...provided,
-        backgroundColor: "black",
+        backgroundColor: "rgba(255, 255, 255, 0.05)",
+        backdropFilter: "blur(20px)",
+        border: state.isFocused ? "2px solid #00d4ff" : "2px solid rgba(255, 255, 255, 0.2)",
+        borderRadius: "12px",
         color: "white",
-        borderColor: "white",
         minWidth: '12rem',
-        maxWidth: '12rem'
+        maxWidth: '12rem',
+        boxShadow: state.isFocused ? "0 6px 16px rgba(0, 0, 0, 0.15)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
+        "&:hover": {
+          borderColor: "#00d4ff"
+        }
       }),
       singleValue: (provided) => ({
         ...provided,
-        color: "white",
+        color: "#f8fafc",
       }),
       menu: (provided) => ({
         ...provided,
-        backgroundColor: "black",
-        maxWidth: '12rem'
+        backgroundColor: "rgba(26, 26, 46, 0.95)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        borderRadius: "12px",
+        maxWidth: '12rem',
+        boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
+        zIndex: 9999
       }),
       option: (provided, state) => ({
         ...provided,
-        backgroundColor: state.isSelected ? "#333" : "black",
-        color: "white",
+        backgroundColor: state.isSelected 
+          ? "linear-gradient(135deg, #00d4ff, #4ecdc4)" 
+          : state.isFocused 
+            ? "rgba(0, 212, 255, 0.1)" 
+            : "transparent",
+        color: "#f8fafc",
         cursor: 'pointer',
         "&:hover": {
-          backgroundColor: "#555",
+          backgroundColor: "rgba(0, 212, 255, 0.1)",
         },
         maxWidth: '12rem'
       }),
       placeholder: (provided) => ({
         ...provided,
-        color: "gray",
+        color: "#64748b",
       }),
       input: (provided) => ({
         ...provided,
-        color: "white",
+        color: "#f8fafc",
+      }),
+      dropdownIndicator: (provided) => ({
+        ...provided,
+        color: "#64748b",
+        "&:hover": {
+          color: "#00d4ff"
+        }
       }),
     };
 
