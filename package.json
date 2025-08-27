@@ -1,18 +1,24 @@
 {
-  "name": "sequel",
+  "name": "scenic",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@mantine/core": "^8.2.7",
+    "@mantine/hooks": "^8.2.7",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",
     "axios": "^1.5.0",
+    "framer-motion": "^12.23.12",
     "query-string": "^8.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.15.0",
     "react-scripts": "5.0.1",
     "react-select": "^5.8.0",
@@ -20,6 +26,7 @@
     "sass": "^1.66.1",
     "slick-carousel": "^1.8.1",
     "swiper": "^10.2.0",
+    "use-debounce": "^10.0.5",
     "web-vitals": "^3.4.0"
   },
   "scripts": {
