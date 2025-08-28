@@ -77,17 +77,22 @@ const MovieGrid = (props) => {
   const getList = async () => {
     let response = null;
     const params = {};
-    if (keyword === undefined && !selectedGenre && !selectedCountry) {
+    
+    if (keyword !== undefined) {
+      // Search mode
+      params.query = keyword;
+      response = await tmdbApi.search(props.category, { params });
+    } else if (props.type) {
+      // Type mode (e.g., top_rated, now_playing) - prioritize type over genre/country
       switch (props.category) {
         case category.movie:
-          const movieTypeToUse = props.type || movieType.popular;
-          response = await tmdbApi.getMoviesList(movieTypeToUse, { params });
+          response = await tmdbApi.getMoviesList(props.type, { params });
           break;
         default:
-          const tvTypeToUse = props.type || tvType.popular;
-          response = await tmdbApi.getTvList(tvTypeToUse, { params });
+          response = await tmdbApi.getTvList(props.type, { params });
       }
-    } else if (keyword === undefined && (selectedGenre || selectedCountry)) {
+    } else if (selectedGenre || selectedCountry) {
+      // Genre/Country filtering mode
       const param = {
         page: 1,
         include_adult: false,
@@ -104,8 +109,14 @@ const MovieGrid = (props) => {
         response = await tmdbApi.getTvByGenre(param);
       }
     } else {
-      params.query = keyword;
-      response = await tmdbApi.search(props.category, { params });
+      // Default mode - popular content
+      switch (props.category) {
+        case category.movie:
+          response = await tmdbApi.getMoviesList(movieType.popular, { params });
+          break;
+        default:
+          response = await tmdbApi.getTvList(tvType.popular, { params });
+      }
     }
     setItems(response.results);
     setTotalPage(response.total_pages);
@@ -121,17 +132,22 @@ const MovieGrid = (props) => {
     const params = {
       page: page + 1,
     };
-    if (keyword === undefined && !selectedGenre && !selectedCountry) {
+    
+    if (keyword !== undefined) {
+      // Search mode
+      params.query = keyword;
+      response = await tmdbApi.search(props.category, { params });
+    } else if (props.type) {
+      // Type mode (e.g., top_rated, now_playing) - prioritize type over genre/country
       switch (props.category) {
         case category.movie:
-          const movieTypeToUse = props.type || movieType.popular;
-          response = await tmdbApi.getMoviesList(movieTypeToUse, { params });
+          response = await tmdbApi.getMoviesList(props.type, { params });
           break;
         default:
-          const tvTypeToUse = props.type || tvType.popular;
-          response = await tmdbApi.getTvList(tvTypeToUse, { params });
+          response = await tmdbApi.getTvList(props.type, { params });
       }
-    } else if (keyword === undefined && (selectedGenre || selectedCountry)) {
+    } else if (selectedGenre || selectedCountry) {
+      // Genre/Country filtering mode
       const param = {
         page: page + 1,
         include_adult: false,
@@ -148,8 +164,14 @@ const MovieGrid = (props) => {
         response = await tmdbApi.getTvByGenre(param);
       }
     } else {
-      params.query = keyword;
-      response = await tmdbApi.search(props.category, { params });
+      // Default mode - popular content
+      switch (props.category) {
+        case category.movie:
+          response = await tmdbApi.getMoviesList(movieType.popular, { params });
+          break;
+        default:
+          response = await tmdbApi.getTvList(tvType.popular, { params });
+      }
     }
     setItems([...items, ...response.results]);
     setPage(page + 1);
@@ -267,6 +289,7 @@ const MovieGrid = (props) => {
 
 const MovieSearch = (props) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [keyword, setKeyword] = useState(props.keyword ? props.keyword : "");
   const [debouncedKeyword] = useDebounce(keyword, 500);
@@ -275,20 +298,23 @@ const MovieSearch = (props) => {
     if (searchTerm && searchTerm.trim().length > 0) {
       navigate(`/${category[props.category]}/search/${searchTerm}`);
     } else {
-      // If empty search, show all movies/series of this category
-      navigate(`/${category[props.category]}`);
+      // If empty search, only navigate if we're currently on a search page
+      if (location.pathname.includes('/search/')) {
+        navigate(`/${category[props.category]}`);
+      }
+      // Otherwise, stay on the current page (don't redirect from type pages)
     }
-  }, [props.category, navigate]);
+  }, [props.category, navigate, location.pathname]);
 
   // Auto-search with debouncing
   useEffect(() => {
     if (debouncedKeyword.trim().length > 0) {
       goToSearch(debouncedKeyword);
-    } else if (debouncedKeyword === "" && keyword === "") {
-      // If user backspaced to empty, show all movies/series of this category
+    } else if (debouncedKeyword === "" && keyword === "" && location.pathname.includes('/search/')) {
+      // Only redirect to category page if we're currently on a search page
       goToSearch("");
     }
-  }, [debouncedKeyword, keyword, goToSearch]);
+  }, [debouncedKeyword, keyword, goToSearch, location.pathname]);
 
   // Keep Enter key functionality
   useEffect(() => {
