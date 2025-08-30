@@ -196,17 +196,52 @@ const SeriesVideoPlayer = ({ id, title, series }) => {
                 <h3>Episodes</h3>
                 <div className="episode-list">
                   {episodes.map((episode) => (
-                    <Card
+                    <div
                       key={episode.id}
                       onClick={() => handleEpisodeClick(episode.episode_number)}
-                      className={`series-episode-card ${
+                      className={`episode-card ${
                         selectedEpisode === episode.episode_number
                           ? "selected"
                           : ""
                       }`}
                     >
-                      Episode {episode.episode_number}: {episode.name}
-                    </Card>
+                      <div className="episode-image-container">
+                        {episode.still_path ? (
+                          <img
+                            src={`${apiConfig.w500Image(episode.still_path)}`}
+                            alt={episode.name}
+                            className="episode-image"
+                          />
+                        ) : (
+                          <div className="episode-placeholder">
+                            <i className="bx bx-play-circle"></i>
+                          </div>
+                        )}
+                        <div className="episode-number">
+                          {episode.episode_number}
+                        </div>
+                      </div>
+                      <div className="episode-content">
+                        <h4 className="episode-title">
+                          {episode.name}
+                        </h4>
+                        <p className="episode-overview">
+                          {episode.overview || "No description available."}
+                        </p>
+                        <div className="episode-meta">
+                          {episode.air_date && (
+                            <span className="episode-date">
+                              {new Date(episode.air_date).toLocaleDateString()}
+                            </span>
+                          )}
+                          {episode.runtime && (
+                            <span className="episode-runtime">
+                              {episode.runtime}min
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
