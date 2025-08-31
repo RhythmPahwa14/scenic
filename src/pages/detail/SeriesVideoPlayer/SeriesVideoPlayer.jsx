@@ -7,7 +7,7 @@ import Button from "../../../components/button/Button";
 import tmdbApi from "../../../api/tmdbApi";
 import Select from "react-select";
 
-const SeriesVideoPlayer = ({ id, title, series }) => {
+const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
   const [selectedServer, setSelectedServer] = useState(0);
   const [serverUrl, setServerUrl] = useState("");
   const [selectedSeason, setSelectedSeason] = useState(null);
@@ -56,6 +56,10 @@ const SeriesVideoPlayer = ({ id, title, series }) => {
 
   const handleEpisodeClick = (episode_number) => {
     setSelectedEpisode(episode_number);
+    // Scroll to player section when episode is clicked
+    if (onEpisodeClick) {
+      onEpisodeClick();
+    }
   };
 
   useEffect(() => {

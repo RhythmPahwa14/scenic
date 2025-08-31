@@ -143,7 +143,12 @@ const Detail = () => {
       <div className="container">
         <div className="section mb-3" ref={videoPlayerRef}>
           {item.seasons ? (
-            <SeriesVideoPlayer id={item.id} title={title} series={item} />
+            <SeriesVideoPlayer 
+              id={item.id} 
+              title={title} 
+              series={item} 
+              onEpisodeClick={handlePlayButtonClick}
+            />
           ) : (
             <VideoPlayer id={item.id} title={title} movie={item} />
           )}
