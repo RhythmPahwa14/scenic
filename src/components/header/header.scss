@@ -8,11 +8,11 @@
     font-family: "Bebas Neue", sans-serif;
     @include gradient-text($main-color, $accent-color);
     letter-spacing: 2px;
-    
+
     @include flex(center, unset);
-    
+
     transition: all $transition-normal;
-    
+
     &:hover {
         transform: scale(1.05);
         filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
@@ -63,11 +63,13 @@
 
         li {
             padding: $space-3 0;
-            font-weight: 500;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-weight: 400;
             position: relative;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
             transition: all $transition-normal;
-            
+
             a {
                 position: relative;
                 z-index: 2;
@@ -91,7 +93,7 @@
             &:hover::after {
                 width: 80%;
             }
-            
+
             &.active,
             &:hover {
                 color: $main-color;
@@ -119,14 +121,16 @@
             z-index: 100;
 
             @include flex(center, space-between);
-            
+
             li {
                 padding: $space-2 $space-3;
-                font-size: 0.9rem;
-                font-weight: 500;
+                font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                font-size: 0.85rem;
+                font-weight: 400;
+                letter-spacing: 0.02em;
                 position: relative;
                 transition: all $transition-normal;
-                
+
                 a {
                     padding: $space-2;
                     position: relative;
@@ -150,7 +154,7 @@
                 &:hover::after {
                     width: 80%;
                 }
-                
+
                 &.active,
                 &:hover {
                     color: $main-color;

@@ -9,6 +9,7 @@ import { theme } from './theme';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import AnimatedBackground from './components/background/AnimatedBackground';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/home/Home';
 import Catalog from './pages/Catalog';
 import Detail from './pages/detail/Detail';
@@ -18,6 +19,7 @@ function App() {
     return (
         <MantineProvider theme={theme} defaultColorScheme="dark">
             <BrowserRouter>
+                <ScrollToTop />
                 <AnimatedBackground />
                 <Header />
                 <Routes>

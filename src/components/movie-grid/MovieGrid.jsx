@@ -5,6 +5,7 @@ import "./movie-grid.scss";
 import MovieCard from "../movie-card/MovieCard";
 import { OutlineButton } from "../button/Button";
 import Input from "../input/Input";
+import Loading from "../loading/Loading";
 import tmdbApi, { category, movieType, tvType } from "../../api/tmdbApi";
 import Select from "react-select";
 
@@ -16,6 +17,8 @@ const MovieGrid = (props) => {
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [countries, setCountries] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const { keyword } = useParams();
   const location = useLocation();
@@ -23,45 +26,55 @@ const MovieGrid = (props) => {
   const searchParams = new URLSearchParams(location.search);
   const genreFromUrl = searchParams.get('genre');
 
+  // Track if genres have been loaded and validated
+  const [genresLoaded, setGenresLoaded] = useState(false);
+
   useEffect(() => {
-    const getGenres = async () => {
+    const initializeComponent = async () => {
+      setGenresLoaded(false);
+      setSelectedGenre(null);
+      setSelectedCountry(null);
+
       try {
-        const response = await tmdbApi.getGenreList(props.category);
-        const genreOptions = response.genres.map((genre) => ({
+        // Load genres for current category
+        const [genreResponse, countryResponse] = await Promise.all([
+          tmdbApi.getGenreList(props.category),
+          tmdbApi.getCountryList()
+        ]);
+
+        const genreOptions = genreResponse.genres.map((genre) => ({
           value: genre.id,
           label: genre.name,
         }));
         setGenres(genreOptions);
 
-        // Set selected genre from URL parameter after genres are loaded
-        if (genreFromUrl) {
+        const countryOptions = countryResponse.map((country) => ({
+          value: country.iso_3166_1,
+          label: country.english_name,
+        }));
+        setCountries(countryOptions);
+
+        // Only set selected genre if it exists in current category AND we're not on a type page
+        if (genreFromUrl && !props.type) {
           const genreOption = genreOptions.find(genre => genre.value.toString() === genreFromUrl);
           if (genreOption) {
             setSelectedGenre(genreOption);
+          } else {
+            // Genre doesn't exist for this category, clear URL
+            const currentPath = location.pathname;
+            navigate(currentPath, { replace: true });
           }
         }
+
+        setGenresLoaded(true);
       } catch (error) {
-        console.error("Error fetching genres:", error);
+        console.error("Error fetching genres/countries:", error);
+        setGenresLoaded(true);
       }
     };
 
-    const getCountries = async () => {
-      try {
-        const response = await tmdbApi.getCountryList();
-        setCountries(
-          response.map((country) => ({
-            value: country.iso_3166_1,
-            label: country.english_name,
-          }))
-        );
-      } catch (error) {
-        console.error("Error fetching countries:", error);
-      }
-    };
-
-    getGenres();
-    getCountries();
-  }, [props.category, genreFromUrl]);
+    initializeComponent();
+  }, [props.category, props.type, genreFromUrl, location.pathname, navigate]);
 
   // Handle genre selection and URL update
   const handleGenreChange = (genre) => {
@@ -75,106 +88,159 @@ const MovieGrid = (props) => {
   };
 
   const getList = async () => {
-    let response = null;
-    const params = {};
-    
-    if (keyword !== undefined) {
-      // Search mode
-      params.query = keyword;
-      response = await tmdbApi.search(props.category, { params });
-    } else if (props.type) {
-      // Type mode (e.g., top_rated, now_playing) - prioritize type over genre/country
-      switch (props.category) {
-        case category.movie:
-          response = await tmdbApi.getMoviesList(props.type, { params });
-          break;
-        default:
-          response = await tmdbApi.getTvList(props.type, { params });
-      }
-    } else if (selectedGenre || selectedCountry) {
-      // Genre/Country filtering mode
-      const param = {
-        page: 1,
-        include_adult: false,
-        include_video: false,
-        language: "en-US",
-        sort_by: "popularity.desc",
-      };
-      if (selectedGenre) param.with_genres = selectedGenre.value;
-      if (selectedCountry) param.with_origin_country = selectedCountry.value;
+    setIsLoading(true);
+    try {
+      let response = null;
+      const params = {};
+      
+      if (keyword !== undefined) {
+        // Search mode
+        params.query = keyword;
+        response = await tmdbApi.search(props.category, { params });
+      } else if (props.type) {
+        // Type mode (e.g., top_rated, now_playing) - prioritize type over genre/country
+        switch (props.category) {
+          case category.movie:
+            response = await tmdbApi.getMoviesList(props.type, { params });
+            break;
+          default:
+            response = await tmdbApi.getTvList(props.type, { params });
+        }
+      } else if (selectedGenre || selectedCountry) {
+        // Genre/Country filtering mode - but validate genre exists for current category
+        const validGenre = selectedGenre && genres.find(g => g.value === selectedGenre.value);
+        
+        if (validGenre || selectedCountry) {
+          const param = {
+            page: 1,
+            include_adult: false,
+            include_video: false,
+            language: "en-US",
+            sort_by: "popularity.desc",
+          };
+          
+          // Only add genre if it's valid for current category
+          if (validGenre) param.with_genres = validGenre.value;
+          if (selectedCountry) param.with_origin_country = selectedCountry.value;
 
-      if (props.category === category.movie) {
-        response = await tmdbApi.getMoviesByGenre(param);
+          if (props.category === category.movie) {
+            response = await tmdbApi.getMoviesByGenre(param);
+          } else {
+            response = await tmdbApi.getTvByGenre(param);
+          }
+        } else {
+          // Invalid genre for this category, fall back to popular content
+          switch (props.category) {
+            case category.movie:
+              response = await tmdbApi.getMoviesList(movieType.popular, { params });
+              break;
+            default:
+              response = await tmdbApi.getTvList(tvType.popular, { params });
+          }
+          
+          // Clear invalid genre selection and URL
+          setSelectedGenre(null);
+          const currentPath = location.pathname;
+          navigate(currentPath, { replace: true });
+        }
       } else {
-        response = await tmdbApi.getTvByGenre(param);
+        // Default mode - popular content
+        switch (props.category) {
+          case category.movie:
+            response = await tmdbApi.getMoviesList(movieType.popular, { params });
+            break;
+          default:
+            response = await tmdbApi.getTvList(tvType.popular, { params });
+        }
       }
-    } else {
-      // Default mode - popular content
-      switch (props.category) {
-        case category.movie:
-          response = await tmdbApi.getMoviesList(movieType.popular, { params });
-          break;
-        default:
-          response = await tmdbApi.getTvList(tvType.popular, { params });
-      }
+      setItems(response.results);
+      setTotalPage(response.total_pages);
+      setPage(1); // Reset page when getting new list
+    } catch (error) {
+      console.error("Error fetching content:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setItems(response.results);
-    setTotalPage(response.total_pages);
   };
 
   useEffect(() => {
-    getList();
+    // Only make API calls after genres have been loaded and validated
+    if (genresLoaded) {
+      getList();
+    }
     // eslint-disable-next-line
-  }, [props.category, props.type, keyword, selectedGenre, selectedCountry]);
+  }, [props.category, props.type, keyword, selectedGenre, selectedCountry, genresLoaded]);
 
   const loadMore = async () => {
-    let response = null;
-    const params = {
-      page: page + 1,
-    };
-    
-    if (keyword !== undefined) {
-      // Search mode
-      params.query = keyword;
-      response = await tmdbApi.search(props.category, { params });
-    } else if (props.type) {
-      // Type mode (e.g., top_rated, now_playing) - prioritize type over genre/country
-      switch (props.category) {
-        case category.movie:
-          response = await tmdbApi.getMoviesList(props.type, { params });
-          break;
-        default:
-          response = await tmdbApi.getTvList(props.type, { params });
-      }
-    } else if (selectedGenre || selectedCountry) {
-      // Genre/Country filtering mode
-      const param = {
+    setIsLoadingMore(true);
+    try {
+      let response = null;
+      const params = {
         page: page + 1,
-        include_adult: false,
-        include_video: false,
-        language: "en-US",
-        sort_by: "popularity.desc",
       };
-      if (selectedGenre) param.with_genres = selectedGenre.value;
-      if (selectedCountry) param.with_origin_country = selectedCountry.value;
+      
+      if (keyword !== undefined) {
+        // Search mode
+        params.query = keyword;
+        response = await tmdbApi.search(props.category, { params });
+      } else if (props.type) {
+        // Type mode (e.g., top_rated, now_playing) - prioritize type over genre/country
+        switch (props.category) {
+          case category.movie:
+            response = await tmdbApi.getMoviesList(props.type, { params });
+            break;
+          default:
+            response = await tmdbApi.getTvList(props.type, { params });
+        }
+      } else if (selectedGenre || selectedCountry) {
+        // Genre/Country filtering mode - validate genre exists for current category
+        const validGenre = selectedGenre && genres.find(g => g.value === selectedGenre.value);
+        
+        if (validGenre || selectedCountry) {
+          const param = {
+            page: page + 1,
+            include_adult: false,
+            include_video: false,
+            language: "en-US",
+            sort_by: "popularity.desc",
+          };
+          
+          // Only add genre if it's valid for current category
+          if (validGenre) param.with_genres = validGenre.value;
+          if (selectedCountry) param.with_origin_country = selectedCountry.value;
 
-      if (props.category === category.movie) {
-        response = await tmdbApi.getMoviesByGenre(param);
+          if (props.category === category.movie) {
+            response = await tmdbApi.getMoviesByGenre(param);
+          } else {
+            response = await tmdbApi.getTvByGenre(param);
+          }
+        } else {
+          // Invalid genre, fall back to popular content
+          switch (props.category) {
+            case category.movie:
+              response = await tmdbApi.getMoviesList(movieType.popular, { params });
+              break;
+            default:
+              response = await tmdbApi.getTvList(tvType.popular, { params });
+          }
+        }
       } else {
-        response = await tmdbApi.getTvByGenre(param);
+        // Default mode - popular content
+        switch (props.category) {
+          case category.movie:
+            response = await tmdbApi.getMoviesList(movieType.popular, { params });
+            break;
+          default:
+            response = await tmdbApi.getTvList(tvType.popular, { params });
+        }
       }
-    } else {
-      // Default mode - popular content
-      switch (props.category) {
-        case category.movie:
-          response = await tmdbApi.getMoviesList(movieType.popular, { params });
-          break;
-        default:
-          response = await tmdbApi.getTvList(tvType.popular, { params });
-      }
+      setItems([...items, ...response.results]);
+      setPage(page + 1);
+    } catch (error) {
+      console.error("Error loading more content:", error);
+    } finally {
+      setIsLoadingMore(false);
     }
-    setItems([...items, ...response.results]);
-    setPage(page + 1);
   };
 
   // Custom styles for the Select component - matching season dropdown
@@ -242,6 +308,10 @@ const MovieGrid = (props) => {
     }),
   };
 
+  if (isLoading) {
+    return <Loading size="large" />;
+  }
+
   return (
     <>
       <div className="section mb-3">
@@ -278,11 +348,20 @@ const MovieGrid = (props) => {
       </div>
       {page < totalPage ? (
         <div className="movie-grid__loadmore">
-          <OutlineButton className="small" onClick={loadMore}>
-            Load more
+          <OutlineButton 
+            className="small" 
+            onClick={loadMore}
+            disabled={isLoadingMore}
+          >
+            {isLoadingMore ? 'Loading...' : 'Load more'}
           </OutlineButton>
         </div>
       ) : null}
+      {isLoadingMore && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+          <Loading size="small" />
+        </div>
+      )}
     </>
   );
 };

@@ -40,14 +40,20 @@ const MultiSearch = () => {
 
   const getSearchResults = useCallback(async () => {
     if (!keyword) return;
+    setIsLoading(true);
     try {
       const params = {
         query: keyword,
       };
       const response = await tmdbApi.search(category.multi, { params });
       setSearchResults(response.results);
+      setError(null);
     } catch (error) {
       console.error("Error searching:", error);
+      setError("Failed to search. Please try again.");
+      toast.error("Search failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }, [keyword]);
 
@@ -113,13 +119,23 @@ const MultiSearch = () => {
       </motion.div>
       <div className="container">
         <h2>Search Results for "{keyword}"</h2>
-        <div className="movie-grid">
-          {searchResults
-            .filter((item) => item.backdrop_path || item.poster_path)
-            .map((item, i) => (
-              <MovieCard category={item.media_type} item={item} key={i} />
-            ))}
-        </div>
+        {isLoading ? (
+          <Loading size="large" />
+        ) : error ? (
+          <div className="error-message">
+            <Text color="red" size="lg" ta="center">
+              {error}
+            </Text>
+          </div>
+        ) : (
+          <div className="movie-grid">
+            {searchResults
+              .filter((item) => item.backdrop_path || item.poster_path)
+              .map((item, i) => (
+                <MovieCard category={item.media_type} item={item} key={i} />
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );

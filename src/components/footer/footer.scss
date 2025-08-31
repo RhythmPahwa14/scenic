@@ -5,33 +5,33 @@
     backdrop-filter: $backdrop-blur;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     margin-top: $space-24;
-    
+
     &__content {
-        padding: $space-16 0 $space-8 0;
+        padding: $space-8 0 $space-8 0;
         @include flex(flex-start, space-between);
-        
+
         @include tablet {
             flex-direction: column;
             gap: $space-6;
             text-align: center;
             align-items: center;
         }
-        
+
         @include mobile {
             gap: $space-4;
             text-align: center;
             align-items: center;
         }
     }
-    
+
     &__brand {
         flex: 0 0 auto;
         max-width: 300px;
-        
+
         @include mobile {
             text-align: center;
         }
-        
+
         .footer__logo {
             font-size: 2.5rem;
             font-weight: 700;
@@ -40,25 +40,27 @@
             margin-bottom: $space-2;
             letter-spacing: 2px;
         }
-        
+
         .footer__tagline {
             color: $txt-secondary;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
             margin: 0;
+            opacity: 0.8;
         }
     }
-    
+
     &__links {
         @include flex(flex-start, flex-start);
         gap: $space-8;
         flex: 0 0 auto;
-        
+
         @include tablet {
             justify-content: center;
             gap: $space-6;
             flex-wrap: wrap;
         }
-        
+
         @include mobile {
             flex-direction: column;
             gap: $space-4;
@@ -66,36 +68,42 @@
             text-align: center;
         }
     }
-    
+
     &__section {
         @include mobile {
             text-align: center;
         }
-        
+
         h4 {
             color: $main-color;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: $space-4;
+            margin-bottom: $space-3;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
+
         ul {
             list-style: none;
             padding: 0;
             margin: 0;
-            
+
             li {
                 margin-bottom: $space-2;
-                
+
                 a {
                     color: $txt-secondary;
                     text-decoration: none;
+                    font-size: 0.85rem;
+                    font-weight: 400;
                     transition: all $transition-normal;
-                    
+                    opacity: 0.9;
+
                     &:hover {
                         color: $main-color;
+                        opacity: 1;
                         transform: translateX(4px);
-                        
+
                         @include mobile {
                             transform: translateY(-2px);
                         }
@@ -134,19 +142,20 @@
             }
         }
     }
-    
+
     &__bottom {
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding: $space-6 0;
-        
+
         .footer__credit {
             text-align: center;
-            
+
             p {
                 color: $txt-muted;
-                font-size: 0.9rem;
+                font-size: 0.8rem;
                 margin: 0;
-                
+                opacity: 0.7;
+
                 a {
                     color: $main-color;
                     text-decoration: none;
@@ -165,11 +174,11 @@
         &__content {
             padding: $space-12 0 $space-6 0;
         }
-        
+
         &__brand .footer__logo {
             font-size: 2rem;
         }
-        
+
         &__social-icons a {
             width: 36px;
             height: 36px;

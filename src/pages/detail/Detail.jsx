@@ -9,10 +9,12 @@ import VideoPlayer from "./MovieVideoPlayer/VideoPlayer";
 import Button, { OutlineButton } from "../../components/button/Button";
 import SeriesVideoPlayer from "./SeriesVideoPlayer/SeriesVideoPlayer";
 import Modal, { ModalContent } from "../../components/modal/Modal";
+import Loading from "../../components/loading/Loading";
 
 const Detail = () => {
   const { category, id } = useParams();
   const [item, setItem] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const videoPlayerRef = useRef(null);
 
   const [modalActive, setModalActive] = useState(false);
@@ -41,6 +43,7 @@ const Detail = () => {
   };
 
   const getDetail = async () => {
+    setIsLoading(true);
     try {
       // Check if ID is numeric, if not redirect to catalog
       if (id && isNaN(Number(id))) {
@@ -55,6 +58,8 @@ const Detail = () => {
       console.error("Error fetching movie/TV details:", error);
       // Redirect to catalog if detail fetch fails
       window.location.href = `/${category}`;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,6 +71,10 @@ const Detail = () => {
   const handlePlayButtonClick = () => {
     videoPlayerRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  if (isLoading) {
+    return <Loading size="large" />;
+  }
 
   if (!item) return null;
 
@@ -105,8 +114,11 @@ const Detail = () => {
           </div>
           <p className="overview">{item.overview}</p>
           <div className="buttons">
-          <div>
             <Button onClick={handleWatchTrailer} className='trailer-btn'>Watch Trailer</Button>
+            <div className="rating-tag">
+              <i className="bx bxs-star"></i>
+              <span>{item.vote_average?.toFixed(1)}/10</span>
+            </div>
             <Modal active={modalActive} id="trailer-modal">
               <ModalContent onClose={handleCloseModal}>
                 <iframe
@@ -119,8 +131,6 @@ const Detail = () => {
                 ></iframe>
               </ModalContent>
             </Modal>
-          </div>
-          <div><OutlineButton className='trailer-btn'>Ratings: {item.vote_average}/10</OutlineButton></div>
           </div>
           <div className="cast">
             <div className="section__header">
