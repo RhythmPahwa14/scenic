@@ -41,15 +41,23 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
 
   // Auto-select the first non-zero season or restore from localStorage
   useEffect(() => {
-    if (series?.seasons?.length > 0) {
+    if (series?.seasons?.length > 0 && id) {
       const storageKey = `series_${id}_state`;
       const savedState = localStorage.getItem(storageKey);
       
       if (savedState) {
         try {
-          const { season, episode } = JSON.parse(savedState);
-          setSelectedSeason(season);
-          setSelectedEpisode(episode);
+          const { season, episode, seriesId } = JSON.parse(savedState);
+          
+          // Verify that the saved state is for the current series
+          if (seriesId === id) {
+            setSelectedSeason(season);
+            setSelectedEpisode(episode);
+          } else {
+            // Saved state is for a different series, reset to first season
+            const first = series.seasons.find((s) => s.season_number !== 0);
+            if (first) setSelectedSeason(first.season_number);
+          }
         } catch (error) {
           console.error("Error parsing saved state:", error);
           // Fallback to first season if parsing fails
@@ -127,11 +135,12 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
     if (selectedSeason) fetchEpisodes(selectedSeason);
   }, [selectedSeason, fetchEpisodes]);
 
-  // Save selected season and episode to localStorage
+  // Save selected series, season and episode to localStorage
   useEffect(() => {
     if (selectedSeason !== null && id) {
       const storageKey = `series_${id}_state`;
       const state = {
+        seriesId: id,
         season: selectedSeason,
         episode: selectedEpisode
       };
@@ -289,6 +298,9 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
                             <i className="bx bx-play-circle"></i>
                           </div>
                         )}
+                        <div className="episode-number">
+                          {episode.episode_number}
+                        </div>
                       </div>
 
                       <div className="episode-content">
