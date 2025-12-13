@@ -9,6 +9,8 @@ const Footer = () => {
     const [movieGenres, setMovieGenres] = useState([]);
     const [tvGenres, setTvGenres] = useState([]);
 
+    const currentYear = new Date().getFullYear();
+
     useEffect(() => {
         const getGenres = async () => {
             try {
@@ -105,7 +107,7 @@ const Footer = () => {
             <div className="footer__bottom">
                 <div className="container">
                     <div className="footer__credit">
-                        <p>© 2024 Scenic. Developed with ❤️ by <a href="https://github.com/vanshaj-pahwa" target="_blank" rel="noopener noreferrer">Vanshaj Pahwa</a></p>
+                        <p>© {currentYear} Scenic. Developed with ❤️ by <a href="https://github.com/vanshaj-pahwa" target="_blank" rel="noopener noreferrer">Vanshaj Pahwa</a></p>
                     </div>
                 </div>
             </div>
