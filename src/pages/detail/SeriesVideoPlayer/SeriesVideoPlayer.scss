@@ -280,6 +280,10 @@
     margin-top: 1rem;
     overflow-y: auto;
 
+    h3 {
+      margin-bottom: 1rem;
+    }
+
     .episode-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));

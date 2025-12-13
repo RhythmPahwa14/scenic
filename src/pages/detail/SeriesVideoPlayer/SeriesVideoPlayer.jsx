@@ -39,13 +39,30 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
     };
   }, []);
 
-  // Auto-select the first non-zero season
+  // Auto-select the first non-zero season or restore from localStorage
   useEffect(() => {
     if (series?.seasons?.length > 0) {
-      const first = series.seasons.find((s) => s.season_number !== 0);
-      if (first) setSelectedSeason(first.season_number);
+      const storageKey = `series_${id}_state`;
+      const savedState = localStorage.getItem(storageKey);
+      
+      if (savedState) {
+        try {
+          const { season, episode } = JSON.parse(savedState);
+          setSelectedSeason(season);
+          setSelectedEpisode(episode);
+        } catch (error) {
+          console.error("Error parsing saved state:", error);
+          // Fallback to first season if parsing fails
+          const first = series.seasons.find((s) => s.season_number !== 0);
+          if (first) setSelectedSeason(first.season_number);
+        }
+      } else {
+        // No saved state, select first season
+        const first = series.seasons.find((s) => s.season_number !== 0);
+        if (first) setSelectedSeason(first.season_number);
+      }
     }
-  }, [series]);
+  }, [series, id]);
 
   const handleServerClick = (index) => {
     setSelectedServer(index);
@@ -107,8 +124,20 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
   };
 
   useEffect(() => {
-  if (selectedSeason) fetchEpisodes(selectedSeason);
-}, [selectedSeason, fetchEpisodes]);
+    if (selectedSeason) fetchEpisodes(selectedSeason);
+  }, [selectedSeason, fetchEpisodes]);
+
+  // Save selected season and episode to localStorage
+  useEffect(() => {
+    if (selectedSeason !== null && id) {
+      const storageKey = `series_${id}_state`;
+      const state = {
+        season: selectedSeason,
+        episode: selectedEpisode
+      };
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+  }, [selectedSeason, selectedEpisode, id]);
 
   return (
     <React.Fragment>
