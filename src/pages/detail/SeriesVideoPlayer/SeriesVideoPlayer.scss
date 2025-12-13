@@ -296,32 +296,46 @@
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: $backdrop-blur;
       display: flex;
+      flex-direction: column;
       color: $txt-color;
       cursor: pointer;
       border-radius: $border-radius;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       overflow: hidden;
-      min-height: 120px;
+      transition: all $transition-normal;
 
       &:hover {
         border-color: $main-color;
         background: rgba(0, 212, 255, 0.1);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+        .episode-image-container {
+          .episode-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 1;
+          }
+
+          .play-button {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+          }
+        }
       }
 
       .episode-image-container {
         position: relative;
-        width: 160px;
-        min-height: 120px;
-        flex-shrink: 0;
+        width: 100%;
+        aspect-ratio: 16 / 9;
         overflow: hidden;
+        flex-shrink: 0;
 
         .episode-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
+          transition: transform $transition-normal;
         }
 
         .episode-placeholder {
@@ -332,26 +346,46 @@
           align-items: center;
           justify-content: center;
           color: rgba(255, 255, 255, 0.5);
-          font-size: 1.5rem;
+          font-size: 2rem;
+        }
+
+        .episode-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity $transition-normal, background $transition-normal;
+          z-index: 2;
+
+          .play-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, $main-color, $accent-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            transition: all $transition-normal;
+
+            i {
+              margin-left: 2px;
+            }
+          }
         }
 
         .episode-number {
-          position: absolute;
-          top: 6px;
-          left: 6px;
-          background: rgba(0, 0, 0, 0.8);
-          color: white;
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: -0.01em;
-          z-index: 1;
+          display: none;
         }
       }
 
       .episode-content {
-        padding: 0.75rem;
+        padding: 1rem;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -363,7 +397,7 @@
           font-weight: 600;
           letter-spacing: -0.01em;
           margin: 0 0 0.5rem 0;
-          line-height: 1.2;
+          line-height: 1.3;
           color: $white;
         }
 
@@ -371,18 +405,16 @@
           font-size: 0.875rem;
           font-weight: 400;
           line-height: 1.4;
-          margin: 0 0 0.5rem 0;
+          margin: 0 0 0.75rem 0;
           color: rgba(255, 255, 255, 0.8);
           display: -webkit-box;
-          // -webkit-line-clamp: 2;
-          // line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
 
         .episode-meta {
           display: flex;
-          gap: 0.75rem;
+          gap: 1rem;
           font-size: 0.75rem;
           font-weight: 500;
           color: rgba(255, 255, 255, 0.6);
@@ -394,36 +426,23 @@
           }
         }
       }
-
-      @include mobile {
-        flex-direction: column;
-        min-height: auto;
-
-        .episode-image-container {
-          width: 100%;
-          min-height: 180px;
-        }
-
-        .episode-content {
-          padding: 0.5rem;
-
-          // .episode-overview {
-          //   -webkit-line-clamp: 3;
-          //   line-clamp: 3;
-          // }
-        }
-      }
     }
 
     .episode-card.selected {
-      background: linear-gradient(135deg, $main-color, $accent-secondary);
-      color: $white;
       border-color: $main-color;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(138, 43, 226, 0.15));
+      box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+
+      .episode-image-container {
+        .episode-overlay {
+          background: rgba(0, 0, 0, 0.4);
+          opacity: 1;
+        }
+      }
 
       .episode-content {
         .episode-title {
-          color: $white;
+          color: $main-color;
         }
 
         .episode-overview {
@@ -431,7 +450,7 @@
         }
 
         .episode-meta {
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(255, 255, 255, 0.7);
         }
       }
     }

@@ -6,7 +6,7 @@ import "./detail.scss";
 import CastList from "./CastList/CastList";
 import MovieList from "../../components/movie-list/MovieList";
 import VideoPlayer from "./MovieVideoPlayer/VideoPlayer";
-import Button, { OutlineButton } from "../../components/button/Button";
+import Button from "../../components/button/Button";
 import SeriesVideoPlayer from "./SeriesVideoPlayer/SeriesVideoPlayer";
 import Modal, { ModalContent } from "../../components/modal/Modal";
 import Loading from "../../components/loading/Loading";
@@ -155,9 +155,9 @@ const Detail = () => {
         </div>
         <div className="section mb-3">
           <div className="section__header mb-2">
-            <h2>Similar</h2>
+            <h2>More Like This</h2>
           </div>
-          <MovieList category={category} type="similar" id={item.id} />
+          <MovieList category={category} type="recommendations" id={item.id} />
         </div>
       </div>
     </>

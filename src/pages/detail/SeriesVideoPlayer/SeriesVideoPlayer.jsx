@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./SeriesVideoPlayer.scss";
 import Card from "../../../components/card/Card";
 import { servers } from "../../../constants/constants";
@@ -80,13 +80,13 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
     setSelectedServer(0);
   };
 
-  const fetchEpisodes = (seasonNum) => {
-  setLoadingEpisodes(true);
-  tmdbApi.getSeason(id, seasonNum).then((response) => {
-    setEpisodes(response.episodes);
-    setLoadingEpisodes(false);
-  });
-};
+  const fetchEpisodes = useCallback((seasonNum) => {
+    setLoadingEpisodes(true);
+    tmdbApi.getSeason(id, seasonNum).then((response) => {
+      setEpisodes(response.episodes);
+      setLoadingEpisodes(false);
+    });
+  }, [id]);
 
   const handleSeasonChange = (option) => {
     const season = Number(option.value);
@@ -108,7 +108,7 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
 
   useEffect(() => {
   if (selectedSeason) fetchEpisodes(selectedSeason);
-}, [selectedSeason]);
+}, [selectedSeason, fetchEpisodes]);
 
   return (
     <React.Fragment>
@@ -239,31 +239,38 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
                     <div
                       key={episode.id}
                       onClick={() => handleEpisodeClick(episode.episode_number)}
-                      className={`episode-card ${selectedEpisode === episode.episode_number ? "selected" : ""
-                        }`}
+                      className={`episode-card ${selectedEpisode === episode.episode_number ? "selected" : ""}`}
                     >
                       <div className="episode-image-container">
                         {episode.still_path ? (
-                          <img
-                            src={apiConfig.w500Image(episode.still_path)}
-                            alt={episode.name}
-                            className="episode-image"
-                          />
+                          <>
+                            <img
+                              src={apiConfig.w500Image(episode.still_path)}
+                              alt={episode.name}
+                              className="episode-image"
+                            />
+                            <div className="episode-overlay">
+                              <div className="play-button">
+                                <i className="bx bx-play"></i>
+                              </div>
+                            </div>
+                          </>
                         ) : (
                           <div className="episode-placeholder">
                             <i className="bx bx-play-circle"></i>
                           </div>
                         )}
-                        <div className="episode-number">
-                          {episode.episode_number}
-                        </div>
                       </div>
 
                       <div className="episode-content">
-                        <h4 className="episode-title">{episode.name}</h4>
-                        <p className="episode-overview">
-                          {episode.overview || "No description available."}
-                        </p>
+                        <div>
+                          <h4 className="episode-title">
+                            Episode {episode.episode_number}: {episode.name}
+                          </h4>
+                          <p className="episode-overview">
+                            {episode.overview || "No description available."}
+                          </p>
+                        </div>
 
                         <div className="episode-meta">
                           {episode.air_date && (

@@ -18,14 +18,14 @@ const MovieList = ({ category: cat, type, id }) => {
       let response;
       const params = {};
 
-      if (type !== "similar") {
+      if (type !== "recommendations") {
         response =
           cat === category.movie
             ? await tmdbApi.getMoviesList(type, { params })
             : await tmdbApi.getTvList(type, { params });
       } else {
-        if (!id) throw new Error("ID is required for similar content");
-        response = await tmdbApi.similar(cat, id);
+        if (!id) throw new Error("ID is required for recommendations content");
+        response = await tmdbApi.recommendations(cat, id);
       }
 
       setItems(response.results);

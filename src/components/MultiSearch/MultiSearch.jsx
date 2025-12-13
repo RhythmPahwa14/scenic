@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { TextInput, Container, Grid, Text, Transition, ActionIcon } from '@mantine/core';
-import { motion, AnimatePresence } from 'framer-motion';
+import { TextInput, Text, ActionIcon } from '@mantine/core';
+import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useDebounce } from 'use-debounce';
 import MovieCard from "../movie-card/MovieCard";
@@ -9,8 +9,6 @@ import Loading from "../loading/Loading";
 import tmdbApi from "../../api/tmdbApi";
 import { category } from "../../api/tmdbApi";
 import "./MultiSearch.scss";
-import Input from "../input/Input";
-import Button from "../button/Button";
 
 const MultiSearch = () => {
   const { keyword } = useParams();
