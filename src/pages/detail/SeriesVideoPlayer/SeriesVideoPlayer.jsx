@@ -5,7 +5,7 @@ import { servers } from "../../../constants/constants";
 import apiConfig from "../../../api/apiConfig";
 import Button from "../../../components/button/Button";
 import tmdbApi from "../../../api/tmdbApi";
-import Select from "react-select";
+import Loading from "../../../components/loading/Loading";
 
 const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
   const [selectedServer, setSelectedServer] = useState(0);
@@ -13,10 +13,44 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [selectedEpisode, setSelectedEpisode] = useState(null);
   const [episodes, setEpisodes] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+  const dropdownRef = React.useRef(null);
+  const menuRef = React.useRef(null);
+
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // if click is NOT inside dropdown button AND NOT inside menu → close it
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Auto-select the first non-zero season
+  useEffect(() => {
+    if (series?.seasons?.length > 0) {
+      const first = series.seasons.find((s) => s.season_number !== 0);
+      if (first) setSelectedSeason(first.season_number);
+    }
+  }, [series]);
 
   const handleServerClick = (index) => {
     setSelectedServer(index);
     let url = "";
+
     if (index === 0) {
       url = `${process.env.REACT_APP_TV_SERVER1}${id}/${selectedSeason}/${selectedEpisode}`;
     } else if (index === 1) {
@@ -28,6 +62,7 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
     } else {
       url = `${process.env.REACT_APP_TV_SERVER5}${id}&tmdb=1&s=${selectedSeason}&e=${selectedEpisode}`;
     }
+
     setServerUrl(url);
   };
 
@@ -41,17 +76,26 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
   const handlePlayButtonClick = () => {
     setSelectedSeason(1);
     setSelectedEpisode(1);
-    setServerUrl(
-      `${process.env.REACT_APP_TV_SERVER1}/${id}/1/1`
-    );
+    setServerUrl(`${process.env.REACT_APP_TV_SERVER1}/${id}/1/1`);
     setSelectedServer(0);
   };
+
+  const fetchEpisodes = (seasonNum) => {
+  setLoadingEpisodes(true);
+  tmdbApi.getSeason(id, seasonNum).then((response) => {
+    setEpisodes(response.episodes);
+    setLoadingEpisodes(false);
+  });
+};
 
   const handleSeasonChange = (option) => {
     const season = Number(option.value);
     setSelectedSeason(season);
     setSelectedEpisode(null);
     setEpisodes([]);
+    setLoadingEpisodes(true);
+
+    fetchEpisodes(season);
   };
 
   const handleEpisodeClick = (episode_number) => {
@@ -63,81 +107,8 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
   };
 
   useEffect(() => {
-    if (selectedSeason > 0) {
-      tmdbApi.getSeason(id, selectedSeason).then((response) => {
-        setEpisodes(response.episodes);
-      });
-    }
-  }, [selectedSeason, id]);
-
-  const seasonOptions = series.seasons
-    ? series.seasons
-        .filter(season => season.season_number !== 0)
-        .map(season => ({
-          value: season.season_number,
-          label: `Season ${season.season_number}`
-        }))
-    : [];
-
-    const customSelectStyles = {
-      control: (provided, state) => ({
-        ...provided,
-        backgroundColor: "rgba(255, 255, 255, 0.05)",
-        backdropFilter: "blur(20px)",
-        border: state.isFocused ? "2px solid #00d4ff" : "2px solid rgba(255, 255, 255, 0.2)",
-        borderRadius: "12px",
-        color: "white",
-        minWidth: '12rem',
-        maxWidth: '12rem',
-        boxShadow: state.isFocused ? "0 6px 16px rgba(0, 0, 0, 0.15)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
-        "&:hover": {
-          borderColor: "#00d4ff"
-        }
-      }),
-      singleValue: (provided) => ({
-        ...provided,
-        color: "#f8fafc",
-      }),
-      menu: (provided) => ({
-        ...provided,
-        backgroundColor: "rgba(26, 26, 46, 0.95)",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
-        borderRadius: "12px",
-        maxWidth: '12rem',
-        boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
-        zIndex: 9999
-      }),
-      option: (provided, state) => ({
-        ...provided,
-        backgroundColor: state.isSelected 
-          ? "linear-gradient(135deg, #00d4ff, #4ecdc4)" 
-          : state.isFocused 
-            ? "rgba(0, 212, 255, 0.1)" 
-            : "transparent",
-        color: "#f8fafc",
-        cursor: 'pointer',
-        "&:hover": {
-          backgroundColor: "rgba(0, 212, 255, 0.1)",
-        },
-        maxWidth: '12rem'
-      }),
-      placeholder: (provided) => ({
-        ...provided,
-        color: "#64748b",
-      }),
-      input: (provided) => ({
-        ...provided,
-        color: "#f8fafc",
-      }),
-      dropdownIndicator: (provided) => ({
-        ...provided,
-        color: "#64748b",
-        "&:hover": {
-          color: "#00d4ff"
-        }
-      }),
-    };
+  if (selectedSeason) fetchEpisodes(selectedSeason);
+}, [selectedSeason]);
 
   return (
     <React.Fragment>
@@ -145,12 +116,9 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
         {serverUrl && selectedEpisode ? (
           <iframe src={serverUrl} allowFullScreen title={title} />
         ) : (
-          <div
-            className="series-poster-container"
-            onClick={handlePlayButtonClick}
-          >
+          <div className="series-poster-container" onClick={handlePlayButtonClick}>
             <img
-              src={`${apiConfig.originalImage(series.poster_path)}`}
+              src={apiConfig.originalImage(series.poster_path)}
               alt={title}
               className="series-poster-image"
             />
@@ -161,20 +129,17 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
           </div>
         )}
       </div>
+
       <div>
+        {/* SERVER OPTIONS */}
         {selectedEpisode && (
           <div className="series-server-container">
-            <div>
-              If the current server doesn't work, please try other servers
-              below.
-            </div>
+            <div>If the current server doesn't work, try another below.</div>
             <div className="series-server-card-container">
               {servers.map((server, index) => (
                 <Card
                   key={index}
-                  className={`series-server-card ${
-                    selectedServer === index ? "selected" : ""
-                  }`}
+                  className={`series-server-card ${selectedServer === index ? "selected" : ""}`}
                   onClick={() => handleServerClick(index)}
                 >
                   {server}
@@ -183,19 +148,90 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
             </div>
           </div>
         )}
-        {series.seasons && series.seasons.length > 0 && (
+
+        {/* SEASON DROPDOWN */}
+        {series?.seasons?.length > 0 && (
           <div className="season-container">
-            <Select
-            options={seasonOptions}
-            onChange={handleSeasonChange}
-              value={seasonOptions.find(
-                (option) => option.value === selectedSeason
+            <div className="season-dropdown">
+              <div
+                ref={dropdownRef}
+                className="season-dropdown-selected compact"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <span className="label">Season {selectedSeason}</span>
+
+                {dropdownOpen ? (
+                  // Chevron Up
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="chevron-icon"
+                  >
+                    <path d="m18 15-6-6-6 6" />
+                  </svg>
+                ) : (
+                  // Chevron Down
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="chevron-icon"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                )}
+              </div>
+
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div className="season-dropdown-menu" ref={menuRef}>
+                  {series.seasons
+                    .filter((s) => s.season_number !== 0)
+                    .map((season) => (
+                      <div
+                        key={season.id}
+                        className="season-option"
+                        onClick={() => {
+                          handleSeasonChange({ value: season.season_number });
+                          setDropdownOpen(false);
+                        }}
+                      >
+                        <img
+                          src={apiConfig.w500Image(season.poster_path)}
+                          alt={season.name}
+                        />
+
+                        <div className="info">
+                          <h4>Season {season.season_number}</h4>
+                          <p>{season.episode_count} episodes</p>
+                        </div>
+
+                        <span className="year">
+                          {season.air_date?.split("-")[0] || ""}
+                        </span>
+                      </div>
+                    ))}
+                </div>
               )}
-            placeholder="Select a season"
-            isSearchable={false}
-            styles={customSelectStyles}
-          />
-            {episodes.length > 0 && (
+            </div>
+
+            {/* EPISODE LOADER */}
+            {loadingEpisodes && <Loading size="small" loadingText="Loading episodes..." />}
+            {/* EPISODE LIST */}
+            {!loadingEpisodes && episodes.length > 0 && (
               <div className="episode-container">
                 <h3>Episodes</h3>
                 <div className="episode-list">
@@ -203,16 +239,13 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
                     <div
                       key={episode.id}
                       onClick={() => handleEpisodeClick(episode.episode_number)}
-                      className={`episode-card ${
-                        selectedEpisode === episode.episode_number
-                          ? "selected"
-                          : ""
-                      }`}
+                      className={`episode-card ${selectedEpisode === episode.episode_number ? "selected" : ""
+                        }`}
                     >
                       <div className="episode-image-container">
                         {episode.still_path ? (
                           <img
-                            src={`${apiConfig.w500Image(episode.still_path)}`}
+                            src={apiConfig.w500Image(episode.still_path)}
                             alt={episode.name}
                             className="episode-image"
                           />
@@ -225,13 +258,13 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
                           {episode.episode_number}
                         </div>
                       </div>
+
                       <div className="episode-content">
-                        <h4 className="episode-title">
-                          {episode.name}
-                        </h4>
+                        <h4 className="episode-title">{episode.name}</h4>
                         <p className="episode-overview">
                           {episode.overview || "No description available."}
                         </p>
+
                         <div className="episode-meta">
                           {episode.air_date && (
                             <span className="episode-date">

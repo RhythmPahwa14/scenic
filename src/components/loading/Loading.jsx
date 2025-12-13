@@ -1,7 +1,7 @@
 import React from 'react';
 import './loading.scss';
 
-const Loading = ({ size = 'medium' }) => {
+const Loading = ({ size = 'medium', loadingText }) => {
     return (
         <div className={`loading-container ${size}`}>
             <div className="loading-spinner">
@@ -9,7 +9,7 @@ const Loading = ({ size = 'medium' }) => {
                 <div className="spinner-ring"></div>
                 <div className="spinner-ring"></div>
             </div>
-            <p className="loading-text">Loading amazing content...</p>
+            <p className="loading-text">{loadingText || "Loading amazing content..."}</p>
         </div>
     );
 };
