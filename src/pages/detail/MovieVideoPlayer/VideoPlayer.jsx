@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./VideoPlayer.scss";
 import VideoPlayerModal from "../../../components/video-player-modal/VideoPlayerModal";
 
@@ -45,11 +45,11 @@ const VideoPlayer = ({ id, title, shouldOpenPlayer, onPlayerOpen }) => {
     }
   };
 
-  const handlePlayButtonClick = () => {
+  const handlePlayButtonClick = useCallback(() => {
     setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER1}${id}`);
     setSelectedServer(0);
     setIsModalOpen(true);
-  };
+  }, [id]);
 
   useEffect(() => {
     if (shouldOpenPlayer) {
@@ -58,7 +58,7 @@ const VideoPlayer = ({ id, title, shouldOpenPlayer, onPlayerOpen }) => {
         onPlayerOpen();
       }
     }
-  }, [shouldOpenPlayer]);
+  }, [shouldOpenPlayer, handlePlayButtonClick, onPlayerOpen]);
 
   return (
     <VideoPlayerModal
