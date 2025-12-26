@@ -139,13 +139,17 @@
             }
         }
         
+        .watch-now-btn {
+            // Uses default button styling to match Play Now button
+        }
+
         .trailer-btn {
             font-size: 0.9rem;
             @include button-subtle;
-            
+
             &.btn {
                 background: linear-gradient(135deg, rgba(0, 212, 255, 0.8), rgba(78, 205, 196, 0.8));
-                
+
                 &:hover {
                     background: linear-gradient(135deg, $main-color, $accent-secondary);
                 }

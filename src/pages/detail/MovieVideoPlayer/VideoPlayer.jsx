@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import "./VideoPlayer.scss";
-import Card from "../../../components/card/Card";
-import { servers } from "../../../constants/constants";
-import apiConfig from "../../../api/apiConfig";
-import Button from "../../../components/button/Button";
+import VideoPlayerModal from "../../../components/video-player-modal/VideoPlayerModal";
 
-const VideoPlayer = ({ id, title, movie }) => {
-  const [selectedServer, setSelectedServer] = useState(null);
+const VideoPlayer = ({ id, title, shouldOpenPlayer, onPlayerOpen }) => {
+  const [selectedServer, setSelectedServer] = useState(0);
   const [serverUrl, setServerUrl] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleServerClick = (index) => {
     setSelectedServer(index);
@@ -27,6 +25,21 @@ const VideoPlayer = ({ id, title, movie }) => {
       case 4:
         setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER5}${id}`);
         break;
+      case 5:
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER6}${id}`);
+        break;
+      case 6:
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER7}${id}`);
+        break;
+      case 7:
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER8}${id}`);
+        break;
+      case 8:
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER9}${id}`);
+        break;
+      case 9:
+        setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER10}${id}`);
+        break;
       default:
         break;
     }
@@ -35,48 +48,29 @@ const VideoPlayer = ({ id, title, movie }) => {
   const handlePlayButtonClick = () => {
     setServerUrl(`${process.env.REACT_APP_MOVIE_SERVER1}${id}`);
     setSelectedServer(0);
+    setIsModalOpen(true);
   };
 
+  useEffect(() => {
+    if (shouldOpenPlayer) {
+      handlePlayButtonClick();
+      if (onPlayerOpen) {
+        onPlayerOpen();
+      }
+    }
+  }, [shouldOpenPlayer]);
+
   return (
-    <React.Fragment>
-      <div className="video-player-container">
-        {serverUrl ? (
-          <iframe src={serverUrl} allowFullScreen title={title} />
-        ) : (
-          <div className="poster-container" onClick={handlePlayButtonClick}>
-            <img
-              src={`${apiConfig.originalImage(movie.poster_path)}`}
-              alt={movie.title}
-              className="poster-image"
-            />
-            <div className="gradient-overlay" />
-            <Button onClick={handlePlayButtonClick}>
-              <i className="bx bx-play"></i>
-            </Button>
-          </div>
-        )}
-      </div>
-      <div>
-        <div className="server-container">
-          <div>
-            If the current server doesn't work, please try other servers below.
-          </div>
-          <div className="server-card-container">
-            {servers.map((server, index) => (
-              <Card
-                key={index}
-                className={`server-card ${
-                  selectedServer === index ? "selected" : ""
-                }`}
-                onClick={() => handleServerClick(index)}
-              >
-                {server}
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    </React.Fragment>
+    <VideoPlayerModal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      serverUrl={serverUrl}
+      title={title}
+      onServerChange={handleServerClick}
+      selectedServer={selectedServer}
+      hasPrevious={false}
+      hasNext={false}
+    />
   );
 };
 

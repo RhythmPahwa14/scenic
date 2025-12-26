@@ -10,6 +10,7 @@ import Button from "../../components/button/Button";
 import SeriesVideoPlayer from "./SeriesVideoPlayer/SeriesVideoPlayer";
 import Modal, { ModalContent } from "../../components/modal/Modal";
 import Loading from "../../components/loading/Loading";
+import { PlayIcon } from "../../assets/icons/PlayIcon";
 
 const Detail = () => {
   const { category, id } = useParams();
@@ -19,6 +20,7 @@ const Detail = () => {
 
   const [modalActive, setModalActive] = useState(false);
   const [trailerUrl, setTrailerUrl] = useState("");
+  const [shouldOpenPlayer, setShouldOpenPlayer] = useState(false);
 
   const handleWatchTrailer = async () => {
     try {
@@ -69,7 +71,11 @@ const Detail = () => {
   }, [category, id]);
 
   const handlePlayButtonClick = () => {
-    videoPlayerRef.current?.scrollIntoView({ behavior: "smooth" });
+    setShouldOpenPlayer(true);
+  };
+
+  const handleWatchNow = () => {
+    setShouldOpenPlayer(true);
   };
 
   if (isLoading) {
@@ -114,6 +120,11 @@ const Detail = () => {
           </div>
           <p className="overview">{item.overview}</p>
           <div className="buttons">
+            {!item.seasons && (
+              <Button onClick={handleWatchNow} className='watch-now-btn' icon={<PlayIcon />}>
+                Watch Now
+              </Button>
+            )}
             <Button onClick={handleWatchTrailer} className='trailer-btn'>Watch Trailer</Button>
             <div className="rating-tag">
               <i className="bx bxs-star"></i>
@@ -143,14 +154,19 @@ const Detail = () => {
       <div className="container">
         <div className="section mb-3" ref={videoPlayerRef}>
           {item.seasons ? (
-            <SeriesVideoPlayer 
-              id={item.id} 
-              title={title} 
-              series={item} 
+            <SeriesVideoPlayer
+              id={item.id}
+              title={title}
+              series={item}
               onEpisodeClick={handlePlayButtonClick}
             />
           ) : (
-            <VideoPlayer id={item.id} title={title} movie={item} />
+            <VideoPlayer
+              id={item.id}
+              title={title}
+              shouldOpenPlayer={shouldOpenPlayer}
+              onPlayerOpen={() => setShouldOpenPlayer(false)}
+            />
           )}
         </div>
         <div className="section mb-3">

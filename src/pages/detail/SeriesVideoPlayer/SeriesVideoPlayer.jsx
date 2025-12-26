@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./SeriesVideoPlayer.scss";
-import Card from "../../../components/card/Card";
-import { servers } from "../../../constants/constants";
 import apiConfig from "../../../api/apiConfig";
-import Button from "../../../components/button/Button";
 import tmdbApi from "../../../api/tmdbApi";
 import Loading from "../../../components/loading/Loading";
+import VideoPlayerModal from "../../../components/video-player-modal/VideoPlayerModal";
 
-const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
+const SeriesVideoPlayer = ({ id, series }) => {
   const [selectedServer, setSelectedServer] = useState(0);
   const [serverUrl, setServerUrl] = useState("");
   const [selectedSeason, setSelectedSeason] = useState(null);
@@ -15,6 +13,7 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
   const [episodes, setEpisodes] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = React.useRef(null);
   const menuRef = React.useRef(null);
 
@@ -84,8 +83,18 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
       url = `${process.env.REACT_APP_TV_SERVER3}${id}/${selectedSeason}/${selectedEpisode}`;
     } else if (index === 3) {
       url = `${process.env.REACT_APP_TV_SERVER4}?tmdb=${id}&season=${selectedSeason}&episode=${selectedEpisode}`;
-    } else {
+    } else if (index === 4) {
       url = `${process.env.REACT_APP_TV_SERVER5}${id}&tmdb=1&s=${selectedSeason}&e=${selectedEpisode}`;
+    } else if (index === 5) {
+      url = `${process.env.REACT_APP_TV_SERVER6}${id}/${selectedSeason}/${selectedEpisode}`;
+    } else if (index === 6) {
+      url = `${process.env.REACT_APP_TV_SERVER7}${id}/${selectedSeason}/${selectedEpisode}`;
+    } else if (index === 7) {
+      url = `${process.env.REACT_APP_TV_SERVER8}${id}/${selectedSeason}/${selectedEpisode}`;
+    } else if (index === 8) {
+      url = `${process.env.REACT_APP_TV_SERVER9}${id}/${selectedSeason}/${selectedEpisode}`;
+    } else if (index === 9) {
+      url = `${process.env.REACT_APP_TV_SERVER10}${id}/${selectedSeason}/${selectedEpisode}`;
     }
 
     setServerUrl(url);
@@ -98,12 +107,6 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
     // eslint-disable-next-line
   }, [selectedEpisode, selectedServer]);
 
-  const handlePlayButtonClick = () => {
-    setSelectedSeason(1);
-    setSelectedEpisode(1);
-    setServerUrl(`${process.env.REACT_APP_TV_SERVER1}/${id}/1/1`);
-    setSelectedServer(0);
-  };
 
   const fetchEpisodes = useCallback((seasonNum) => {
     setLoadingEpisodes(true);
@@ -125,10 +128,62 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
 
   const handleEpisodeClick = (episode_number) => {
     setSelectedEpisode(episode_number);
-    // Scroll to player section when episode is clicked
-    if (onEpisodeClick) {
-      onEpisodeClick();
+    // Immediately set the server URL when episode is clicked
+    const url = `${process.env.REACT_APP_TV_SERVER1}${id}/${selectedSeason}/${episode_number}`;
+    setServerUrl(url);
+    setSelectedServer(0);
+    setIsModalOpen(true);
+  };
+
+  const handlePreviousEpisode = () => {
+    if (selectedEpisode > 1) {
+      setSelectedEpisode(selectedEpisode - 1);
+    } else if (selectedSeason > 1) {
+      const prevSeason = selectedSeason - 1;
+      setSelectedSeason(prevSeason);
+      // Fetch episodes for previous season and select last episode
+      tmdbApi.getSeason(id, prevSeason).then((response) => {
+        setEpisodes(response.episodes);
+        setSelectedEpisode(response.episodes.length);
+      });
     }
+  };
+
+  const handleNextEpisode = () => {
+    if (episodes.length > 0 && selectedEpisode < episodes.length) {
+      setSelectedEpisode(selectedEpisode + 1);
+    } else if (series?.seasons && selectedSeason < series.seasons.filter(s => s.season_number !== 0).length) {
+      const nextSeason = selectedSeason + 1;
+      setSelectedSeason(nextSeason);
+      setSelectedEpisode(1);
+    }
+  };
+
+  const hasPreviousEpisode = () => {
+    return selectedEpisode > 1 || selectedSeason > 1;
+  };
+
+  const hasNextEpisode = () => {
+    // Check if there's a next episode in current season
+    if (episodes.length > 0 && selectedEpisode < episodes.length) {
+      return true;
+    }
+    // Check if there's a next season
+    const totalSeasons = series?.seasons ? series.seasons.filter(s => s.season_number !== 0).length : 0;
+    if (selectedSeason < totalSeasons) {
+      return true;
+    }
+    return false;
+  };
+
+  const getCurrentEpisodeTitle = () => {
+    return series.name || '';
+  };
+
+  const getCurrentEpisodeSubtitle = () => {
+    const episode = episodes.find(ep => ep.episode_number === selectedEpisode);
+    const episodeInfo = episode ? episode.name : '';
+    return `S${selectedSeason} • E${selectedEpisode}${episodeInfo ? ` • ${episodeInfo}` : ''}`;
   };
 
   useEffect(() => {
@@ -150,42 +205,22 @@ const SeriesVideoPlayer = ({ id, title, series, onEpisodeClick }) => {
 
   return (
     <React.Fragment>
-      <div className="series-player-container">
-        {serverUrl && selectedEpisode ? (
-          <iframe src={serverUrl} allowFullScreen title={title} />
-        ) : (
-          <div className="series-poster-container" onClick={handlePlayButtonClick}>
-            <img
-              src={apiConfig.originalImage(series.poster_path)}
-              alt={title}
-              className="series-poster-image"
-            />
-            <div className="series-gradient-overlay" />
-            <Button onClick={handlePlayButtonClick}>
-              <i className="bx bx-play"></i>
-            </Button>
-          </div>
-        )}
-      </div>
+      {/* Video Player Modal */}
+      <VideoPlayerModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        serverUrl={serverUrl}
+        title={getCurrentEpisodeTitle()}
+        subtitle={getCurrentEpisodeSubtitle()}
+        onServerChange={handleServerClick}
+        selectedServer={selectedServer}
+        onPrevious={handlePreviousEpisode}
+        onNext={handleNextEpisode}
+        hasPrevious={hasPreviousEpisode()}
+        hasNext={hasNextEpisode()}
+      />
 
       <div>
-        {/* SERVER OPTIONS */}
-        {selectedEpisode && (
-          <div className="series-server-container">
-            <div>If the current server doesn't work, try another below.</div>
-            <div className="series-server-card-container">
-              {servers.map((server, index) => (
-                <Card
-                  key={index}
-                  className={`series-server-card ${selectedServer === index ? "selected" : ""}`}
-                  onClick={() => handleServerClick(index)}
-                >
-                  {server}
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* SEASON DROPDOWN */}
         {series?.seasons?.length > 0 && (
